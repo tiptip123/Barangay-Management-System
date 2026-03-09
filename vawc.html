@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VAWC Records</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body { 
+      font-family: system-ui, Arial, sans-serif; 
+      background: #fafafa url('tankulan.jpg') no-repeat top center fixed; 
+      background-size: contain; 
+      margin: 0;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: auto; 
+      background: rgba(255, 255, 255, 0.95); 
+      padding: 2rem; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .08); 
+    }
+    h2 { 
+      text-align: center; 
+      color: #2c3e50; 
+      margin-bottom: 1.5rem; 
+      margin-top: 0;
+    }
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 1.5rem; 
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .header a { 
+      color: #2c3e50; 
+      text-decoration: none; 
+      font-weight: 500; 
+    }
+    .header a:hover { 
+      text-decoration: underline; 
+    }
+    .header button { 
+      background: none; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      color: #2c3e50; 
+      margin-left: 10px;
+    }
+    .search-bar { 
+      text-align: center; 
+      margin-bottom: 1.5rem; 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      gap: 0.5rem; 
+      align-items: center; 
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+    }
+    .search-bar input[type="text"] { 
+      width: 280px; 
+      padding: .5rem; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+    }
+    .search-bar input[type="date"] { 
+      padding: .5rem; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+    }
+    .search-bar label { 
+      font-size: 0.9rem; 
+      color: #555; 
+      font-weight: 500; 
+    }
+    .search-bar .date-group { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+    }
+    .search-bar .clear-btn { 
+      padding: .5rem 1rem; 
+      background: #95a5a6; 
+      color: #fff; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 0.9rem; 
+    }
+    .search-bar .clear-btn:hover { 
+      background: #7f8c8d; 
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 1rem; 
+      font-size: 0.85rem; 
+      background: #fff;
+    }
+    th, td { 
+      border: 1px solid #e0e0e0; 
+      padding: .75rem; 
+      text-align: left; 
+      vertical-align: top; 
+    }
+    th { 
+      background: #2c3e50; 
+      color: #fff; 
+      white-space: nowrap; 
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .action-buttons { 
+      display: flex; 
+      gap: 0.3rem; 
+    }
+    .action-btn { 
+      padding: .25rem .5rem; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 0.8rem; 
+      transition: background .2s; 
+    }
+    .edit-btn { 
+      background: #3498db; 
+      color: #fff; 
+    }
+    .edit-btn:hover { 
+      background: #2980b9; 
+    }
+    .delete-btn { 
+      background: #e74c3c; 
+      color: #fff; 
+    }
+    .delete-btn:hover { 
+      background: #c0392b; 
+    }
+    .modal { 
+      display: none; 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0, 0, 0, 0.5); 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 1000; 
+    }
+    .modal.active { 
+      display: flex; 
+    }
+    .modal-content { 
+      background: #fff; 
+      padding: 2rem; 
+      border-radius: 8px; 
+      max-width: 600px; 
+      width: 90%; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .2); 
+      position: relative; 
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-content h3 { 
+      margin-top: 0; 
+      color: #2c3e50; 
+      margin-bottom: 1.5rem;
+    }
+    .close-btn { 
+      position: absolute; 
+      top: .5rem; 
+      right: .5rem; 
+      background: none; 
+      border: none; 
+      font-size: 1.5rem; 
+      cursor: pointer; 
+      color: #777; 
+    }
+    .close-btn:hover { 
+      color: #000; 
+    }
+    form.edit-form { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+      gap: 1rem; 
+    }
+    form.edit-form input, form.edit-form textarea, form.edit-form select { 
+      padding: .6rem; 
+      font-size: 1rem; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      width: 100%;
+      box-sizing: border-box;
+    }
+    form.edit-form textarea { 
+      grid-column: 1 / -1; 
+      min-height: 80px;
+      resize: vertical;
+    }
+    form.edit-form button { 
+      grid-column: 1 / -1; 
+      background: #2c3e50; 
+      color: #fff; 
+      border: none; 
+      cursor: pointer; 
+      padding: .8rem; 
+      font-size: 1rem; 
+      border-radius: 4px; 
+      transition: background .2s; 
+      font-weight: 600;
+    }
+    form.edit-form button:hover { 
+      background: #1a2838; 
+    }
+    @media print { 
+      body { background: none !important; } 
+      .container { box-shadow: none; max-width: 100%; padding: 0; background: #fff; } 
+      .header, .search-bar, .action-buttons, .modal { display: none !important; } 
+      table { font-size: 0.7rem; } 
+      th { background: #333 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
+    }
+    @media (max-width: 900px) { 
+      table, thead, tbody, tr, td, th { display: block; width: 100%; } 
+      tr { margin-bottom: .8rem; border: 1px solid #ddd; } 
+      td { border: none; position: relative; padding-left: 45%; } 
+      td::before { content: attr(data-label); position: absolute; left: 0; width: 44%; padding-left: .5rem; font-weight: 600; color: #555; } 
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <a href="index.html">← Back to Home</a>
+    <div>
+      <a href="add_vawc.html" id="addLink" style="display: none;">＋ Add New</a>
+      <button onclick="printRecords()" id="printBtn" style="display: none;">🖨️ Print</button>
+    </div>
+  </div>
+
+  <h2>VAWC Records</h2>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent…">
+    <div class="date-group">
+      <label for="dateFrom">From:</label>
+      <input type="date" id="dateFrom">
+      <label for="dateTo">To:</label>
+      <input type="date" id="dateTo">
+      <button type="button" class="clear-btn" id="clearDateFilter">Clear</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Case No.</th>
+        <th>File Date</th>
+        <th>Complainant</th>
+        <th>Age</th>
+        <th>Birthdate</th>
+        <th>Contact No.</th>
+        <th>Address</th>
+        <th>Type of Abuse</th>
+        <th>Respondent</th>
+        <th>Remarks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeModal">&times;</button>
+    <h3>Edit VAWC Case</h3>
+    <form class="edit-form" id="editForm">
+      <input type="hidden" id="edit_id">
+      <input type="text" id="edit_case_number" placeholder="Case Number" required>
+      <input type="date" id="edit_file_date" placeholder="File Date" required>
+      <input type="text" id="edit_complainant" placeholder="Complainant Name" required>
+      <input type="number" id="edit_age" placeholder="Age" required>
+      <input type="date" id="edit_birthdate" placeholder="Birthdate">
+      <input type="tel" id="edit_contact" placeholder="Contact Number">
+      <input type="text" id="edit_address" placeholder="Address">
+      <select id="edit_abuse_type" required>
+        <option value="">Select Type of Abuse</option>
+        <option value="Physical Abuse">Physical Abuse</option>
+        <option value="Sexual Abuse">Sexual Abuse</option>
+        <option value="Psychological Abuse">Psychological Abuse</option>
+        <option value="Economic Abuse">Economic Abuse</option>
+        <option value="Verbal Abuse">Verbal Abuse</option>
+      </select>
+      <input type="text" id="edit_respondent" placeholder="Respondent Name" required>
+      <textarea id="edit_remarks" placeholder="Remarks"></textarea>
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const supabaseUrl = "https://zalttugtbsqcjshqzfet.supabase.co";
+  const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbHR0dWd0YnNxY2pzaHF6ZmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTY4OTUsImV4cCI6MjA4ODU3Mjg5NX0.857tB9_t04GuLPHIGBIlew-C8JBjuikgTVtxcK748Z0";
+  const sb = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+  const tbody = document.getElementById('tableBody');
+  const addLink = document.getElementById('addLink');
+  const printBtn = document.getElementById('printBtn');
+  let allRows = []; // Moved declaration to top
+
+  function configureNav() {
+    const isLoggedIn = localStorage.getItem('userType') === 'vawc';
+    if (isLoggedIn) {
+      addLink.style.display = 'inline';
+      printBtn.style.display = 'inline';
+    } else {
+      addLink.style.display = 'none';
+      printBtn.style.display = 'none';
+    }
+  }
+
+  async function loadData() {
+    const { data, error } = await sb.from('vawc_cases').select('*').order('created_at', { ascending: false });
+    if (error) { console.error('Error:', error); return; }
+    allRows = data || [];
+    renderRows(allRows);
+  }
+
+  function renderRows(rows) {
+    tbody.innerHTML = '';
+    const isAdmin = localStorage.getItem('userType') === 'vawc';
+    rows.forEach(row => {
+      let actionsHtml = isAdmin 
+        ? `<div class="action-buttons"><button class="action-btn edit-btn" data-id="${row.id}">✏️ Edit</button><button class="action-btn delete-btn" data-id="${row.id}" data-case="${row.case_number}">🗑️</button></div>`
+        : '<span style="color: #999;">View Only</span>';
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Case No.">${row.case_number || ''}</td>
+        <td data-label="File Date">${formatDate(row.file_date)}</td>
+        <td data-label="Complainant">${row.complainant || ''}</td>
+        <td data-label="Age">${row.age || ''}</td>
+        <td data-label="Birthdate">${formatDate(row.birthdate)}</td>
+        <td data-label="Contact No.">${row.contact_number || ''}</td>
+        <td data-label="Address">${row.address || ''}</td>
+        <td data-label="Type of Abuse">${row.type_of_abuse || ''}</td>
+        <td data-label="Respondent">${row.respondent || ''}</td>
+        <td data-label="Remarks">${row.remarks || ''}</td>
+        <td data-label="Actions">${actionsHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => deleteRecord(btn.dataset.id, btn.dataset.case)));
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  document.getElementById('searchInput').addEventListener('input', filterRecords);
+  document.getElementById('dateFrom').addEventListener('change', filterRecords);
+  document.getElementById('dateTo').addEventListener('change', filterRecords);
+  document.getElementById('clearDateFilter').addEventListener('click', () => {
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+    filterRecords();
+  });
+
+  function filterRecords() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    const fromDate = document.getElementById('dateFrom').value;
+    const toDate = document.getElementById('dateTo').value;
+    const filtered = allRows.filter(row => {
+      const matchesSearch = row.case_number?.toLowerCase().includes(term) || row.complainant?.toLowerCase().includes(term) || row.respondent?.toLowerCase().includes(term);
+      let matchesDate = true;
+      if (fromDate || toDate) {
+        const recordDate = row.file_date || '';
+        if (fromDate && toDate) matchesDate = recordDate >= fromDate && recordDate <= toDate;
+        else if (fromDate) matchesDate = recordDate >= fromDate;
+        else if (toDate) matchesDate = recordDate <= toDate;
+      }
+      return matchesSearch && matchesDate;
+    });
+    renderRows(filtered);
+  }
+
+  function printRecords() {
+    let html = `<div style="padding: 15px;"><h2 style="text-align: center;">VAWC Records</h2><p>Total: ${allRows.length}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><tr style="background: #333; color: #fff;"><th>Case</th><th>File Date</th><th>Complainant</th><th>Age</th><th>Birthdate</th><th>Contact</th><th>Address</th><th>Abuse Type</th><th>Respondent</th><th>Remarks</th></tr>`;
+    allRows.forEach(row => {
+      html += `<tr><td>${row.case_number || ''}</td><td>${formatDate(row.file_date)}</td><td>${row.complainant || ''}</td><td>${row.age || ''}</td><td>${formatDate(row.birthdate)}</td><td>${row.contact_number || ''}</td><td>${row.address || ''}</td><td>${row.type_of_abuse || ''}</td><td>${row.respondent || ''}</td><td>${row.remarks || ''}</td></tr>`;
+    });
+    html += '</table></div>';
+    const win = window.open('', '_blank');
+    win.document.write(`<html><head><title>Print</title><style>body{font-family:Arial;}</style></head><body>${html}</body></html>`);
+    win.document.close();
+    win.onload = () => win.print();
+  }
+
+  async function deleteRecord(id, caseNum) {
+    if (!confirm(`Delete Case #${caseNum}?`)) return;
+    try {
+      await sb.from('vawc_cases').delete().eq('id', id);
+      alert('Deleted!');
+      loadData();
+    } catch (e) { alert('Error deleting'); console.error(e); }
+  }
+
+  const editModal = document.getElementById('editModal');
+  document.getElementById('closeModal').addEventListener('click', () => editModal.classList.remove('active'));
+  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
+
+  function openEditModal(id) {
+    const row = allRows.find(r => r.id == id);
+    if (!row) return;
+    document.getElementById('edit_id').value = row.id;
+    document.getElementById('edit_case_number').value = row.case_number || '';
+    document.getElementById('edit_file_date').value = row.file_date || '';
+    document.getElementById('edit_complainant').value = row.complainant || '';
+    document.getElementById('edit_age').value = row.age || '';
+    document.getElementById('edit_birthdate').value = row.birthdate || '';
+    document.getElementById('edit_contact').value = row.contact_number || '';
+    document.getElementById('edit_address').value = row.address || '';
+    document.getElementById('edit_abuse_type').value = row.type_of_abuse || '';
+    document.getElementById('edit_respondent').value = row.respondent || '';
+    document.getElementById('edit_remarks').value = row.remarks || '';
+    editModal.classList.add('active');
+  }
+
+  document.getElementById('editForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const id = document.getElementById('edit_id').value;
+    await sb.from('vawc_cases').update({
+      case_number: document.getElementById('edit_case_number').value.trim(),
+      file_date: document.getElementById('edit_file_date').value || null,
+      complainant: document.getElementById('edit_complainant').value.trim(),
+      age: document.getElementById('edit_age').value,
+      birthdate: document.getElementById('edit_birthdate').value || null,
+      contact_number: document.getElementById('edit_contact').value.trim(),
+      address: document.getElementById('edit_address').value.trim(),
+      type_of_abuse: document.getElementById('edit_abuse_type').value,
+      respondent: document.getElementById('edit_respondent').value.trim(),
+      remarks: document.getElementById('edit_remarks').value.trim()
+    }).eq('id', id);
+    alert('Updated!');
+    editModal.classList.remove('active');
+    loadData();
+  });
+
+  configureNav();
+  loadData();
+</script>
+
+</body>
+</html>

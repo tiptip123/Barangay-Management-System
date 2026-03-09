@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add VAWC Case</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body { 
+      font-family: system-ui, Arial, sans-serif; 
+      background: #fafafa url('C:/Users/Kate Lorraine Rama/Downloads/OJT/tankulan.jpg') no-repeat top center fixed; 
+      background-size: contain; 
+      margin: 0;
+      padding: 20px;
+    }
+    .container { 
+      max-width: 600px; 
+      margin: auto; 
+      background: rgba(255, 255, 255, 0.95); 
+      padding: 2rem; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .08); 
+    }
+    h2 { 
+      text-align: center; 
+      color: #2c3e50; 
+      margin-bottom: 1.5rem; 
+      margin-top: 0;
+    }
+    .header { 
+      text-align: right; 
+      margin-bottom: 1rem; 
+    }
+    .header a { 
+      color: #2c3e50; 
+      text-decoration: none; 
+      font-weight: 500; 
+    }
+    .header a:hover { 
+      text-decoration: underline; 
+    }
+    form { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1rem; 
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .form-group label {
+      font-size: 0.9rem;
+      color: #555;
+      font-weight: 500;
+    }
+    input, textarea, select { 
+      width: 100%; 
+      padding: .7rem; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+      font-size: 1rem; 
+      box-sizing: border-box; 
+    }
+    input:focus, textarea:focus, select:focus { 
+      outline: none; 
+      border-color: #2c3e50; 
+    }
+    input[readonly] {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+    button { 
+      width: 100%; 
+      padding: .8rem; 
+      background: #2c3e50; 
+      color: #fff; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      transition: background .2s; 
+      font-weight: 600;
+    }
+    button:hover { 
+      background: #1a2838; 
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <a href="vawc.html">← Back to Records</a>
+  </div>
+
+  <h2>Add New VAWC Case</h2>
+
+  <form id="form">
+    <div class="form-group">
+      <label for="case">Case Number *</label>
+      <input id="case" placeholder="Enter case number" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="file_date">File Date *</label>
+      <input id="file_date" type="date" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="complainant">Complainant Name *</label>
+      <input id="complainant" placeholder="Full name of complainant" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="birthdate">Birthdate *</label>
+      <input id="birthdate" type="date" placeholder="YYYY-MM-DD" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="age">Age (Auto-calculated)</label>
+      <input id="age" type="number" placeholder="Calculated from birthdate" readonly>
+    </div>
+    
+    <div class="form-group">
+      <label for="contact">Contact Number</label>
+      <input id="contact" type="tel" placeholder="09XX-XXX-XXXX">
+    </div>
+    
+    <div class="form-group">
+      <label for="address">Address</label>
+      <input id="address" placeholder="Complete address">
+    </div>
+    
+    <div class="form-group">
+      <label for="abuse_type">Type of Abuse *</label>
+      <select id="abuse_type" required>
+        <option value="">Select Type of Abuse</option>
+        <option value="Physical Abuse">Physical Abuse</option>
+        <option value="Sexual Abuse">Sexual Abuse</option>
+        <option value="Psychological Abuse">Psychological Abuse</option>
+        <option value="Economic Abuse">Economic Abuse</option>
+        <option value="Verbal Abuse">Verbal Abuse</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="respondent">Respondent Name *</label>
+      <input id="respondent" placeholder="Full name of respondent" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="remarks">Remarks</label>
+      <textarea id="remarks" placeholder="Additional notes or comments" rows="4"></textarea>
+    </div>
+    
+    <button type="submit">Save Case</button>
+  </form>
+</div>
+
+<script>
+  // Check if logged in for vawc
+  if (localStorage.getItem('userType') !== 'vawc') {
+    window.location.href = 'index.html';
+  }
+
+  const supabaseUrl = "https://zalttugtbsqcjshqzfet.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbHR0dWd0YnNxY2pzaHF6ZmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTY4OTUsImV4cCI6MjA4ODU3Mjg5NX0.857tB9_t04GuLPHIGBIlew-C8JBjuikgTVtxcK748Z0";
+  const sb = supabase.createClient(supabaseUrl, supabaseKey);
+
+  // Auto-calculate age when birthdate changes
+  document.getElementById('birthdate').addEventListener('change', function() {
+    const birthdate = new Date(this.value);
+    const today = new Date();
+    
+    if (this.value && !isNaN(birthdate.getTime())) {
+      let age = today.getFullYear() - birthdate.getFullYear();
+      const monthDiff = today.getMonth() - birthdate.getMonth();
+      
+      // Adjust age if birthday hasn't occurred yet this year
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+        age--;
+      }
+      
+      // Ensure age is non-negative
+      if (age < 0) age = 0;
+      
+      document.getElementById('age').value = age;
+    } else {
+      document.getElementById('age').value = '';
+    }
+  });
+
+  document.getElementById("form").onsubmit = async e => {
+    e.preventDefault();
+
+    const { error } = await sb.from("vawc_cases").insert([{
+      case_number: document.getElementById("case").value,
+      file_date: document.getElementById("file_date").value,
+      complainant: document.getElementById("complainant").value,
+      age: document.getElementById("age").value,
+      birthdate: document.getElementById("birthdate").value || null,
+      contact_number: document.getElementById("contact").value,
+      address: document.getElementById("address").value,
+      type_of_abuse: document.getElementById("abuse_type").value,
+      respondent: document.getElementById("respondent").value,
+      remarks: document.getElementById("remarks").value
+    }]);
+
+    if (error) { alert('Error: ' + error.message); return; }
+
+    alert("VAWC case saved successfully!");
+    location.href = "vawc.html";
+  };
+</script>
+
+</body>
+</html>

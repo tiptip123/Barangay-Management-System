@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Barangay Tankulan Management System</title>
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #fafafa url('C:/Users/Kate Lorraine Rama/Downloads/OJT/barangay.jpg') no-repeat top center fixed;
+      background-size: contain;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 800px;
+      width: 90%;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.526);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .1); 
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .logo-container img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 3px solid #2c3e50;
+      background: #fff;
+    }
+    h1 {
+      text-align: center;
+      color: #000000;
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+    .subtitle {
+      text-align: center;
+      color: #000000;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #2c3e50;
+      transition: all .2s;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    .card:hover {
+      background: #f0f8ff;
+      border-color: #2c3e50;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    }
+    .card-icon {
+      font-size: 2.5rem;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2c3e50;
+      color: #fff;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .card-content h2 {
+      margin: 0 0 .3rem 0;
+      font-size: 1.2rem;
+    }
+    .card-content p {
+      margin: 0;
+      font-size: .85rem;
+      color: #666;
+    }
+    /* Login Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
+    }
+    .modal-content h3 {
+      text-align: center;
+      color: #2c3e50;
+      margin: 0 0 1.5rem 0;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: .3rem;
+      color: #555;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: .7rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #2c3e50;
+    }
+    .btn-group {
+      display: flex;
+      gap: .5rem;
+      margin-top: 1.5rem;
+    }
+    .btn-group button {
+      flex: 1;
+      padding: .7rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background .2s;
+    }
+    .login-btn {
+      background: #2c3e50;
+      color: #fff;
+    }
+    .login-btn:hover {
+      background: #1a2838;
+    }
+    .cancel-btn {
+      background: #95a5a6;
+      color: #fff;
+    }
+    .cancel-btn:hover {
+      background: #7f8c8d;
+    }
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      margin-top: .5rem;
+      display: none;
+    }
+    @media (max-width: 500px) {
+      .container { 
+        padding: 1rem; 
+        margin: 1rem auto;
+      }
+      .card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo-container">
+    <img src="tankulan.jpg" alt="Barangay Tankulan Logo">
+  </div>
+
+  <h1>Barangay Tankulan</h1>
+  <p class="subtitle">Management System</p>
+
+  <div class="cards">
+    <div class="card" onclick="checkLogin('blotter')">
+      <div class="card-icon">📋</div>
+      <div class="card-content">
+        <h2>Blotter Records</h2>
+        <p>View and manage blotter records</p>
+      </div>
+    </div>
+
+    <div class="card" onclick="checkLogin('vawc')">
+      <div class="card-icon">👩‍👩‍👧</div>
+      <div class="card-content">
+        <h2>VAWC Records</h2>
+        <p>View and manage VAWC cases</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <h3 id="loginTitle">Login</h3>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" required>
+      </div>
+      <p class="error" id="loginError">Invalid username or password</p>
+      <div class="btn-group">
+        <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="login-btn">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentType = '';
+  
+  const credentials = {
+    blotter: { user: 'tankulan', pass: 'tankulan' },
+    vawc: { user: 'user', pass: '1234' }
+  };
+
+  function checkLogin(type) {
+    currentType = type;
+    
+    // Check if already logged in for this type
+    if (localStorage.getItem('userType') === type) {
+      goToPage(type);
+      return;
+    }
+
+    // Show login modal
+    document.getElementById('loginTitle').textContent = type === 'blotter' ? 'Blotter Records Login' : 'VAWC Records Login';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginForm').reset();
+    document.getElementById('loginModal').classList.add('active');
+  }
+
+  // Cancel button
+  document.getElementById('cancelBtn').addEventListener('click', function() {
+    document.getElementById('loginModal').classList.remove('active');
+    currentType = '';
+  });
+
+  // Close modal when clicking outside
+  document.getElementById('loginModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+      currentType = '';
+    }
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const creds = credentials[currentType];
+    
+    if (currentType === 'blotter') {
+      if (username === creds.user && password === creds.pass) {
+        localStorage.setItem('role', 'admin');
+        localStorage.setItem('userType', 'blotter');
+        localStorage.setItem('username', username);
+        document.getElementById('loginModal').classList.remove('active');
+        goToPage('blotter');
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    } else if (currentType === 'vawc') {
+      if (username === creds.user && password === creds.pass) {
+        localStorage.setItem('role', 'admin');
+        localStorage.setItem('userType', 'vawc');
+        localStorage.setItem('username', username);
+        document.getElementById('loginModal').classList.remove('active');
+        goToPage('vawc');
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+  });
+
+  function goToPage(type) {
+    if (type === 'blotter') {
+      window.location.href = 'records.html';
+    } else if (type === 'vawc') {
+      window.location.href = 'vawc.html';
+    }
+  }
+</script>
+
+</body>
+</html>
