@@ -251,10 +251,6 @@
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent…">
     <div class="date-group">
-      <label for="selectDate">Select Date:</label>
-      <input type="date" id="selectDate">
-    </div>
-    <div class="date-group">
       <label for="dateFrom">From:</label>
       <input type="date" id="dateFrom">
       <label for="dateTo">To:</label>
@@ -321,7 +317,7 @@
   const addLink = document.getElementById('addLink');
   const printBtn = document.getElementById('printBtn');
   let allRows = [];
-  let filteredRows = [];
+  let currentVisibleRows = []; // NEW: Track currently displayed rows
 
   function configureNav() {
     const isLoggedIn = localStorage.getItem('userType') === 'vawc';
@@ -338,13 +334,17 @@
     const { data, error } = await sb.from('vawc_cases').select('*').order('created_at', { ascending: false });
     if (error) { console.error('Error:', error); return; }
     allRows = data || [];
-    filteredRows = allRows;
-    renderRows(filteredRows);
+    currentVisibleRows = allRows; // Initialize visible rows
+    renderRows(allRows);
   }
 
   function renderRows(rows) {
     tbody.innerHTML = '';
     const isAdmin = localStorage.getItem('userType') === 'vawc';
+    
+    // Update the global visible rows tracker
+    currentVisibleRows = rows;
+
     rows.forEach(row => {
       let actionsHtml = isAdmin 
         ? `<div class="action-buttons"><button class="action-btn edit-btn" data-id="${row.id}">✏️ Edit</button><button class="action-btn delete-btn" data-id="${row.id}" data-case="${row.case_number}">🗑️</button></div>`
@@ -377,11 +377,9 @@
   }
 
   document.getElementById('searchInput').addEventListener('input', filterRecords);
-  document.getElementById('selectDate').addEventListener('change', filterRecords);
   document.getElementById('dateFrom').addEventListener('change', filterRecords);
   document.getElementById('dateTo').addEventListener('change', filterRecords);
   document.getElementById('clearDateFilter').addEventListener('click', () => {
-    document.getElementById('selectDate').value = '';
     document.getElementById('dateFrom').value = '';
     document.getElementById('dateTo').value = '';
     filterRecords();
@@ -389,17 +387,13 @@
 
   function filterRecords() {
     const term = document.getElementById('searchInput').value.toLowerCase();
-    const selectDate = document.getElementById('selectDate').value;
     const fromDate = document.getElementById('dateFrom').value;
     const toDate = document.getElementById('dateTo').value;
-    filteredRows = allRows.filter(row => {
+    
+    const filtered = allRows.filter(row => {
       const matchesSearch = row.case_number?.toLowerCase().includes(term) || row.complainant?.toLowerCase().includes(term) || row.respondent?.toLowerCase().includes(term);
-      // Specific date takes priority over date range
       let matchesDate = true;
-      if (selectDate) {
-        const recordDate = (row.file_date || '').split('T')[0] || '';
-        matchesDate = recordDate === selectDate;
-      } else if (fromDate || toDate) {
+      if (fromDate || toDate) {
         const recordDate = row.file_date || '';
         if (fromDate && toDate) matchesDate = recordDate >= fromDate && recordDate <= toDate;
         else if (fromDate) matchesDate = recordDate >= fromDate;
@@ -407,20 +401,21 @@
       }
       return matchesSearch && matchesDate;
     });
-    renderRows(filteredRows);
+    
+    renderRows(filtered);
   }
 
   function printRecords() {
-    const selectDate = document.getElementById('selectDate').value;
+    // Use currentVisibleRows (filtered data) instead of allRows (full database)
+    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
+    
     const fromDate = document.getElementById('dateFrom').value;
     const toDate = document.getElementById('dateTo').value;
     const searchTerm = document.getElementById('searchInput').value;
     
-    // Specific date takes priority over date range
+    // Generate date range text for the print header
     let dateRangeText = '';
-    if (selectDate) {
-      dateRangeText = `Date: ${formatDate(selectDate)}`;
-    } else if (fromDate && toDate) {
+    if (fromDate && toDate) {
       dateRangeText = `Date Range: ${formatDate(fromDate)} to ${formatDate(toDate)}`;
     } else if (fromDate) {
       dateRangeText = `From: ${formatDate(fromDate)}`;
@@ -433,7 +428,7 @@
     let html = `<div style="padding: 15px;">
       <h2 style="text-align: center;">VAWC Records</h2>
       <p style="text-align: center; margin: 5px 0;"><strong>${dateRangeText}</strong></p>
-      <p style="text-align: center; margin: 5px 0;">Total: ${filteredRows.length} record(s)</p>
+      <p style="text-align: center; margin: 5px 0;">Total: ${rowsToPrint.length} record(s)</p>
       ${searchTerm ? `<p style="text-align: center; margin: 5px 0; font-size: 12px;">Search: "${searchTerm}"</p>` : ''}
       <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
         <tr style="background: #333; color: #fff;">
@@ -449,7 +444,7 @@
           <th>Remarks</th>
         </tr>`;
     
-    filteredRows.forEach(row => {
+    rowsToPrint.forEach(row => {
       html += `<tr>
         <td>${row.case_number || ''}</td>
         <td>${formatDate(row.file_date)}</td>
