@@ -179,7 +179,6 @@
       min-height: 60px;
       resize: vertical;
     }
-    /* Highlight style for matched search terms */
     .highlight {
       background-color: #ffeb3b;
       padding: 1px 2px;
@@ -187,14 +186,54 @@
       font-weight: 600;
     }
     @media print { 
-      body { background: none !important; } 
-      .container { box-shadow: none; max-width: 100%; padding: 0; background: #fff; } 
-      .header, .search-bar, .action-buttons, .inline-actions { display: none !important; } 
-      table { font-size: 0.7rem; } 
-      th { background: #333 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
-      .editing { background-color: #fff !important; border: none !important; }
-      input, select, textarea { display: none !important; }
-      .highlight { background-color: #fff !important; color: #000 !important; }
+      body { 
+        background: none !important; 
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      } 
+      .container { 
+        box-shadow: none; 
+        max-width: 100%; 
+        padding: 0; 
+        background: #fff; 
+      } 
+      .header, .search-bar, .action-buttons, .inline-actions { 
+        display: none !important; 
+      } 
+      table { 
+        font-size: 9pt; 
+        width: 100%;
+        border-collapse: collapse;
+      } 
+      th { 
+        background: #2c3e50 !important; 
+        color: #ffffff !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+        font-weight: 700; /* Bold for clarity */
+        padding: 6px 4px;
+        border: 1px solid #000;
+        text-transform: uppercase; /* Optional: makes headers stand out more */
+      } 
+      td { 
+        padding: 6px 4px; 
+        border: 1px solid #000;
+        font-size: 9pt;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+      .editing { 
+        background-color: #fff !important; 
+        border: none !important; 
+      }
+      input, select, textarea { 
+        display: none !important; 
+      }
+      .highlight { 
+        background-color: #fff !important; 
+        color: #000 !important; 
+      }
     }
     @media (max-width: 900px) { 
       table, thead, tbody, tr, td, th { display: block; width: 100%; } 
@@ -260,7 +299,6 @@
   let currentVisibleRows = [];
   let editingRowId = null;
 
-  // Helper function to calculate age from birthdate
   function calculateAge(birthdateStr) {
     if (!birthdateStr) return '';
     const birth = new Date(birthdateStr);
@@ -273,7 +311,6 @@
     return age;
   }
 
-  // Event delegation on tbody
   tbody.addEventListener('click', function(e) {
     const target = e.target;
     
@@ -303,7 +340,6 @@
     }
   });
 
-  // Add event listener for birthdate changes on the fly
   tbody.addEventListener('change', function(e) {
     const target = e.target;
     if (target.id && target.id.startsWith('edit_birthdate_')) {
@@ -336,10 +372,8 @@
     renderRows(allRows);
   }
 
-  // Helper function to highlight matched text
   function highlightText(text, searchTerm) {
     if (!text || !searchTerm) return text || '';
-    
     const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedTerm})`, 'gi');
     return text.toString().replace(regex, '<span class="highlight">$1</span>');
@@ -382,10 +416,8 @@
         tr.className = 'editing';
       }
       
-      // Helper to get value safely - preserves null/empty values
       const val = (field) => row[field] !== undefined && row[field] !== null ? row[field] : '';
       
-      // Apply highlighting to searchable fields
       const caseNo = highlightText(val('case_number'), searchTerm);
       const complainant = highlightText(val('complainant'), searchTerm);
       const address = highlightText(val('address'), searchTerm);
@@ -438,7 +470,6 @@
     const toDate = document.getElementById('dateTo').value;
     
     const filtered = allRows.filter(row => {
-      // Include address in search along with other fields
       const matchesSearch = row.case_number?.toLowerCase().includes(term) || 
                            row.complainant?.toLowerCase().includes(term) || 
                            row.respondent?.toLowerCase().includes(term) ||
@@ -476,37 +507,30 @@
       return;
     }
     
-    // Get values from inputs
     const caseNumber = document.getElementById(`edit_case_${id}`).value.trim();
     const complainant = document.getElementById(`edit_complainant_${id}`).value.trim();
     const respondent = document.getElementById(`edit_respondent_${id}`).value.trim();
     
-    // Validate NOT NULL fields
     if (!caseNumber || !complainant || !respondent) {
       alert('Case Number, Complainant, and Respondent are required fields.');
       return;
     }
     
-    // Get age value - preserve original if empty, but prioritize calculated if birthdate changed
     const ageInput = document.getElementById(`edit_age_${id}`).value.trim();
     const birthdateInput = document.getElementById(`edit_birthdate_${id}`).value;
     
-    // If birthdate was entered/changed, use calculated age if age field is empty or matches old age
     let finalAge = null;
     if (birthdateInput) {
       const calculated = calculateAge(birthdateInput);
       if (!ageInput) {
         finalAge = calculated;
       } else {
-        // If user manually typed an age, use that, but we could also warn if it differs significantly
         finalAge = parseInt(ageInput);
       }
     } else {
-      // If no birthdate, use original or manual input
       finalAge = ageInput ? parseInt(ageInput) : row.age;
     }
 
-    // Get other values - preserve original if empty
     const fileDate = document.getElementById(`edit_file_date_${id}`).value || row.file_date;
     const birthdate = birthdateInput || row.birthdate;
     const contactNumber = document.getElementById(`edit_contact_${id}`).value.trim() || row.contact_number;
@@ -514,7 +538,6 @@
     const typeOfAbuse = document.getElementById(`edit_abuse_${id}`).value || row.type_of_abuse;
     const remarks = document.getElementById(`edit_remarks_${id}`).value.trim() || row.remarks;
     
-    // Build update object
     const updateData = {
       case_number: caseNumber,
       file_date: fileDate || null,
@@ -568,24 +591,87 @@
       dateRangeText = 'All Records';
     }
     
-    let html = `<div style="padding: 15px;">
-      <h2 style="text-align: center;">VAWC Records</h2>
-      <p style="text-align: center; margin: 5px 0;"><strong>${dateRangeText}</strong></p>
-      <p style="text-align: center; margin: 5px 0;">Total: ${rowsToPrint.length} record(s)</p>
-      ${searchTerm ? `<p style="text-align: center; margin: 5px 0; font-size: 12px;">Search: "${searchTerm}"</p>` : ''}
-      <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-        <tr style="background: #333; color: #fff;">
-          <th>Case</th>
-          <th>File Date</th>
-          <th>Complainant</th>
-          <th>Age</th>
-          <th>Birthdate</th>
-          <th>Contact</th>
-          <th>Address</th>
-          <th>Abuse Type</th>
-          <th>Respondent</th>
-          <th>Remarks</th>
-        </tr>`;
+    // Optimized Print HTML with high contrast headers
+    let html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>VAWC Records Print</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 9pt;
+      margin: 15px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .info {
+      text-align: center;
+      margin: 5px 0;
+      font-size: 10pt;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 9pt;
+    }
+    th {
+      background: #2c3e50 !important;
+      color: #ffffff !important;
+      padding: 6px 4px;
+      border: 1px solid #000;
+      font-weight: 700; /* Bold */
+      text-align: left;
+      white-space: nowrap;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    td {
+      padding: 6px 4px;
+      border: 1px solid #000;
+      font-size: 9pt;
+      vertical-align: top;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr {
+      page-break-inside: avoid;
+    }
+    @media print {
+      body {
+        margin: 0;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>VAWC Records</h2>
+  <div class="info"><strong>${dateRangeText}</strong></div>
+  <div class="info">Total: ${rowsToPrint.length} record(s)</div>
+  ${searchTerm ? `<div class="info" style="font-size: 8pt;">Search: "${searchTerm}"</div>` : ''}
+  <table>
+    <thead>
+      <tr>
+        <th>Case No.</th>
+        <th>File Date</th>
+        <th>Complainant</th>
+        <th>Age</th>
+        <th>Birthdate</th>
+        <th>Contact No.</th>
+        <th>Address</th>
+        <th>Type of Abuse</th>
+        <th>Respondent</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>`;
     
     rowsToPrint.forEach(row => {
       html += `<tr>
@@ -602,9 +688,13 @@
       </tr>`;
     });
     
-    html += '</table></div>';
+    html += `</tbody>
+  </table>
+</body>
+</html>`;
+    
     const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>VAWC Records Print</title><style>body{font-family:Arial;}</style></head><body>${html}</body></html>`);
+    win.document.write(html);
     win.document.close();
     win.onload = () => win.print();
   }
