@@ -15,7 +15,7 @@
     .container { 
       max-width: 1200px; 
       margin: auto; 
-      background: rgba(255, 255, 255, 0.95); /* Increased opacity for better readability */
+      background: rgba(255, 255, 255, 0.95);
       padding: 2rem; 
       border-radius: 8px; 
       box-shadow: 0 2px 6px rgba(0, 0, 0, .08); 
@@ -317,7 +317,8 @@
   const tbody = document.getElementById('tableBody');
   const addLink = document.getElementById('addLink');
   const printBtn = document.getElementById('printBtn');
-  let allRows = []; // Moved declaration to top
+  let allRows = [];
+  let currentVisibleRows = []; // NEW: Track currently displayed rows
 
   function configureNav() {
     const isLoggedIn = localStorage.getItem('userType') === 'blotter';
@@ -339,6 +340,7 @@
 
     if (error) { console.error('Error:', error); return; }
     allRows = data;
+    currentVisibleRows = data; // Initialize visible rows
     renderRows(allRows);
   }
 
@@ -348,6 +350,10 @@
   function renderRows(rows) {
     tbody.innerHTML = '';
     const isAdmin = localStorage.getItem('userType') === 'blotter';
+    
+    // Update the global visible rows tracker
+    currentVisibleRows = rows;
+
     rows.forEach(row => {
       const detail = (row.complaint_details && row.complaint_details[0]) || {};
       let actionsHtml = isAdmin 
@@ -414,11 +420,16 @@
   }
 
   function printRecords() {
-    let html = `<div style="padding: 15px;"><h2 style="text-align: center;">Blotter Records</h2><p>Total: ${allRows.length}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><tr style="background: #333; color: #fff;"><th>Case</th><th>Date</th><th>Complainant</th><th>Respondent</th><th>Nature</th><th>Phone</th><th>Settlement</th><th>Schedule</th><th>Remarks</th></tr>`;
-    allRows.forEach(row => {
+    // Use currentVisibleRows (filtered data) instead of allRows (full database)
+    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
+    
+    let html = `<div style="padding: 15px;"><h2 style="text-align: center;">Blotter Records</h2><p>Total: ${rowsToPrint.length}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><tr style="background: #333; color: #fff;"><th>Case</th><th>Date</th><th>Complainant</th><th>Respondent</th><th>Nature</th><th>Phone</th><th>Settlement</th><th>Schedule</th><th>Remarks</th></tr>`;
+    
+    rowsToPrint.forEach(row => {
       const d = (row.complaint_details && row.complaint_details[0]) || {};
       html += `<tr><td>${row.case_number || ''}</td><td>${formatDateTime(getDateFiled(row))}</td><td>${row.complainant?.complainant_name || ''}</td><td>${d.respondent || ''}</td><td>${d.nature_of_complaint || ''}</td><td>${row.complainant?.complainant_phone || ''}</td><td>${d.form_of_settlement || ''}</td><td>${formatDateTime(getSchedule(row))}</td><td>${d.remarks || ''}</td></tr>`;
     });
+    
     html += '</table></div>';
     const win = window.open('', '_blank');
     win.document.write(`<html><head><title>Print</title><style>body{font-family:Arial;}</style></head><body>${html}</body></html>`);
