@@ -84,6 +84,18 @@
     button:hover { 
       background: #1a2838; 
     }
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+    }
+    .success-message.show {
+      display: block;
+    }
     @media (max-width: 600px) {
       .container { padding: 1rem; }
     }
@@ -97,6 +109,8 @@
   </div>
 
   <h2>Add New VAWC Case</h2>
+
+  <div id="successMessage" class="success-message">✓ Case saved successfully!</div>
 
   <form id="form">
     <div class="form-group">
@@ -209,10 +223,28 @@
       remarks: document.getElementById("remarks").value
     }]);
 
-    if (error) { alert('Error: ' + error.message); return; }
+    if (error) { 
+      alert('Error: ' + error.message); 
+      return; 
+    }
 
-    alert("VAWC case saved successfully!");
-    location.href = "vawc.html";
+    // Show success message
+    const successMsg = document.getElementById('successMessage');
+    successMsg.classList.add('show');
+    
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+      successMsg.classList.remove('show');
+    }, 3000);
+
+    // Reset form but stay on the page
+    document.getElementById("form").reset();
+    
+    // Clear the age field (since birthdate is cleared)
+    document.getElementById('age').value = '';
+    
+    // Focus on the first field for quick next entry
+    document.getElementById('case').focus();
   };
 </script>
 

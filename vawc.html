@@ -120,7 +120,7 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    .action-buttons { 
+    .action-buttons, .inline-actions { 
       display: flex; 
       gap: 0.3rem; 
     }
@@ -139,6 +139,20 @@
     .edit-btn:hover { 
       background: #2980b9; 
     }
+    .save-btn { 
+      background: #27ae60; 
+      color: #fff; 
+    }
+    .save-btn:hover { 
+      background: #219a52; 
+    }
+    .cancel-btn { 
+      background: #95a5a6; 
+      color: #fff; 
+    }
+    .cancel-btn:hover { 
+      background: #7f8c8d; 
+    }
     .delete-btn { 
       background: #e74c3c; 
       color: #fff; 
@@ -146,86 +160,33 @@
     .delete-btn:hover { 
       background: #c0392b; 
     }
-    .modal { 
-      display: none; 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0, 0, 0, 0.5); 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 1000; 
+    .editing {
+      background-color: #fff9e6 !important;
+      border: 2px solid #f39c12;
     }
-    .modal.active { 
-      display: flex; 
+    .editing td {
+      padding: 0.5rem;
     }
-    .modal-content { 
-      background: #fff; 
-      padding: 2rem; 
-      border-radius: 8px; 
-      max-width: 600px; 
-      width: 90%; 
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .2); 
-      position: relative; 
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-content h3 { 
-      margin-top: 0; 
-      color: #2c3e50; 
-      margin-bottom: 1.5rem;
-    }
-    .close-btn { 
-      position: absolute; 
-      top: .5rem; 
-      right: .5rem; 
-      background: none; 
-      border: none; 
-      font-size: 1.5rem; 
-      cursor: pointer; 
-      color: #777; 
-    }
-    .close-btn:hover { 
-      color: #000; 
-    }
-    form.edit-form { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
-      gap: 1rem; 
-    }
-    form.edit-form input, form.edit-form textarea, form.edit-form select { 
-      padding: .6rem; 
-      font-size: 1rem; 
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
+    .editing input, .editing select, .editing textarea {
       width: 100%;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.85rem;
       box-sizing: border-box;
     }
-    form.edit-form textarea { 
-      grid-column: 1 / -1; 
-      min-height: 80px;
+    .editing textarea {
+      min-height: 60px;
       resize: vertical;
-    }
-    form.edit-form button { 
-      grid-column: 1 / -1; 
-      background: #2c3e50; 
-      color: #fff; 
-      border: none; 
-      cursor: pointer; 
-      padding: .8rem; 
-      font-size: 1rem; 
-      border-radius: 4px; 
-      transition: background .2s; 
-      font-weight: 600;
-    }
-    form.edit-form button:hover { 
-      background: #1a2838; 
     }
     @media print { 
       body { background: none !important; } 
       .container { box-shadow: none; max-width: 100%; padding: 0; background: #fff; } 
-      .header, .search-bar, .action-buttons, .modal { display: none !important; } 
+      .header, .search-bar, .action-buttons, .inline-actions { display: none !important; } 
       table { font-size: 0.7rem; } 
       th { background: #333 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
+      .editing { background-color: #fff !important; border: none !important; }
+      input, select, textarea { display: none !important; }
     }
     @media (max-width: 900px) { 
       table, thead, tbody, tr, td, th { display: block; width: 100%; } 
@@ -279,35 +240,6 @@
   </table>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal" id="editModal">
-  <div class="modal-content">
-    <button class="close-btn" id="closeModal">&times;</button>
-    <h3>Edit VAWC Case</h3>
-    <form class="edit-form" id="editForm">
-      <input type="hidden" id="edit_id">
-      <input type="text" id="edit_case_number" placeholder="Case Number" required>
-      <input type="date" id="edit_file_date" placeholder="File Date" required>
-      <input type="text" id="edit_complainant" placeholder="Complainant Name" required>
-      <input type="number" id="edit_age" placeholder="Age" required>
-      <input type="date" id="edit_birthdate" placeholder="Birthdate">
-      <input type="tel" id="edit_contact" placeholder="Contact Number">
-      <input type="text" id="edit_address" placeholder="Address">
-      <select id="edit_abuse_type" required>
-        <option value="">Select Type of Abuse</option>
-        <option value="Physical Abuse">Physical Abuse</option>
-        <option value="Sexual Abuse">Sexual Abuse</option>
-        <option value="Psychological Abuse">Psychological Abuse</option>
-        <option value="Economic Abuse">Economic Abuse</option>
-        <option value="Verbal Abuse">Verbal Abuse</option>
-      </select>
-      <input type="text" id="edit_respondent" placeholder="Respondent Name" required>
-      <textarea id="edit_remarks" placeholder="Remarks"></textarea>
-      <button type="submit">Save Changes</button>
-    </form>
-  </div>
-</div>
-
 <script>
   const supabaseUrl = "https://zalttugtbsqcjshqzfet.supabase.co";
   const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbHR0dWd0YnNxY2pzaHF6ZmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTY4OTUsImV4cCI6MjA4ODU3Mjg5NX0.857tB9_t04GuLPHIGBIlew-C8JBjuikgTVtxcK748Z0";
@@ -317,10 +249,68 @@
   const addLink = document.getElementById('addLink');
   const printBtn = document.getElementById('printBtn');
   let allRows = [];
-  let currentVisibleRows = []; // NEW: Track currently displayed rows
+  let currentVisibleRows = [];
+  let editingRowId = null;
+
+  // Helper function to calculate age from birthdate
+  function calculateAge(birthdateStr) {
+    if (!birthdateStr) return '';
+    const birth = new Date(birthdateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  // Event delegation on tbody
+  tbody.addEventListener('click', function(e) {
+    const target = e.target;
+    
+    if (target.classList.contains('edit-btn')) {
+      const id = target.dataset.id;
+      startInlineEdit(id);
+      return;
+    }
+    
+    if (target.classList.contains('save-btn')) {
+      const id = target.dataset.id;
+      saveInlineEdit(id);
+      return;
+    }
+    
+    if (target.classList.contains('cancel-btn')) {
+      const id = target.dataset.id;
+      cancelInlineEdit(id);
+      return;
+    }
+    
+    if (target.classList.contains('delete-btn')) {
+      const id = target.dataset.id;
+      const caseNum = target.dataset.case;
+      deleteRecord(id, caseNum);
+      return;
+    }
+  });
+
+  // Add event listener for birthdate changes on the fly
+  tbody.addEventListener('change', function(e) {
+    const target = e.target;
+    if (target.id && target.id.startsWith('edit_birthdate_')) {
+      const id = target.id.replace('edit_birthdate_', '');
+      const ageInput = document.getElementById(`edit_age_${id}`);
+      if (ageInput && target.value) {
+        const calculatedAge = calculateAge(target.value);
+        ageInput.value = calculatedAge;
+      }
+    }
+  });
 
   function configureNav() {
-    const isLoggedIn = localStorage.getItem('userType') === 'vawc';
+    const userType = localStorage.getItem('userType');
+    const isLoggedIn = userType === 'vawc';
     if (isLoggedIn) {
       addLink.style.display = 'inline';
       printBtn.style.display = 'inline';
@@ -334,41 +324,71 @@
     const { data, error } = await sb.from('vawc_cases').select('*').order('created_at', { ascending: false });
     if (error) { console.error('Error:', error); return; }
     allRows = data || [];
-    currentVisibleRows = allRows; // Initialize visible rows
+    currentVisibleRows = allRows;
     renderRows(allRows);
   }
 
   function renderRows(rows) {
     tbody.innerHTML = '';
     const isAdmin = localStorage.getItem('userType') === 'vawc';
-    
-    // Update the global visible rows tracker
     currentVisibleRows = rows;
 
     rows.forEach(row => {
-      let actionsHtml = isAdmin 
-        ? `<div class="action-buttons"><button class="action-btn edit-btn" data-id="${row.id}">✏️ Edit</button><button class="action-btn delete-btn" data-id="${row.id}" data-case="${row.case_number}">🗑️</button></div>`
-        : '<span style="color: #999;">View Only</span>';
+      const rowIdStr = String(row.id);
+      const editIdStr = String(editingRowId);
+      const isEditing = (editingRowId !== null) && (rowIdStr === editIdStr);
+
+      let actionsHtml = '';
+      if (isAdmin) {
+        if (isEditing) {
+          actionsHtml = `
+            <div class="inline-actions">
+              <button class="action-btn save-btn" data-id="${row.id}">✓ Save</button>
+              <button class="action-btn cancel-btn" data-id="${row.id}">✕ Cancel</button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div class="action-buttons">
+              <button class="action-btn edit-btn" data-id="${row.id}">✏️ Edit</button>
+              <button class="action-btn delete-btn" data-id="${row.id}" data-case="${row.case_number}">🗑️</button>
+            </div>
+          `;
+        }
+      } else {
+        actionsHtml = '<span style="color: #999;">View Only</span>';
+      }
       
       const tr = document.createElement('tr');
+      if (isEditing) {
+        tr.className = 'editing';
+      }
+      
+      const val = (field) => row[field] !== undefined && row[field] !== null ? row[field] : '';
+      
       tr.innerHTML = `
-        <td data-label="Case No.">${row.case_number || ''}</td>
-        <td data-label="File Date">${formatDate(row.file_date)}</td>
-        <td data-label="Complainant">${row.complainant || ''}</td>
-        <td data-label="Age">${row.age || ''}</td>
-        <td data-label="Birthdate">${formatDate(row.birthdate)}</td>
-        <td data-label="Contact No.">${row.contact_number || ''}</td>
-        <td data-label="Address">${row.address || ''}</td>
-        <td data-label="Type of Abuse">${row.type_of_abuse || ''}</td>
-        <td data-label="Respondent">${row.respondent || ''}</td>
-        <td data-label="Remarks">${row.remarks || ''}</td>
+        <td data-label="Case No.">${isEditing ? `<input type="text" id="edit_case_${row.id}" value="${val('case_number')}">` : val('case_number')}</td>
+        <td data-label="File Date">${isEditing ? `<input type="date" id="edit_file_date_${row.id}" value="${val('file_date')}">` : formatDate(val('file_date'))}</td>
+        <td data-label="Complainant">${isEditing ? `<input type="text" id="edit_complainant_${row.id}" value="${val('complainant')}">` : val('complainant')}</td>
+        <td data-label="Age">${isEditing ? `<input type="number" id="edit_age_${row.id}" value="${val('age')}">` : val('age')}</td>
+        <td data-label="Birthdate">${isEditing ? `<input type="date" id="edit_birthdate_${row.id}" value="${val('birthdate')}">` : formatDate(val('birthdate'))}</td>
+        <td data-label="Contact No.">${isEditing ? `<input type="tel" id="edit_contact_${row.id}" value="${val('contact_number')}">` : val('contact_number')}</td>
+        <td data-label="Address">${isEditing ? `<input type="text" id="edit_address_${row.id}" value="${val('address')}">` : val('address')}</td>
+        <td data-label="Type of Abuse">${isEditing ? `
+          <select id="edit_abuse_${row.id}">
+            <option value="">Select Type of Abuse</option>
+            <option value="Physical Abuse" ${val('type_of_abuse') === 'Physical Abuse' ? 'selected' : ''}>Physical Abuse</option>
+            <option value="Sexual Abuse" ${val('type_of_abuse') === 'Sexual Abuse' ? 'selected' : ''}>Sexual Abuse</option>
+            <option value="Psychological Abuse" ${val('type_of_abuse') === 'Psychological Abuse' ? 'selected' : ''}>Psychological Abuse</option>
+            <option value="Economic Abuse" ${val('type_of_abuse') === 'Economic Abuse' ? 'selected' : ''}>Economic Abuse</option>
+            <option value="Verbal Abuse" ${val('type_of_abuse') === 'Verbal Abuse' ? 'selected' : ''}>Verbal Abuse</option>
+          </select>` : val('type_of_abuse')}</td>
+        <td data-label="Respondent">${isEditing ? `<input type="text" id="edit_respondent_${row.id}" value="${val('respondent')}">` : val('respondent')}</td>
+        <td data-label="Remarks">${isEditing ? `<textarea id="edit_remarks_${row.id}">${val('remarks')}</textarea>` : val('remarks')}</td>
         <td data-label="Actions">${actionsHtml}</td>
       `;
       tbody.appendChild(tr);
     });
-    
-    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
-    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => deleteRecord(btn.dataset.id, btn.dataset.case)));
   }
 
   function formatDate(dateStr) {
@@ -405,15 +425,107 @@
     renderRows(filtered);
   }
 
-  function printRecords() {
-    // Use currentVisibleRows (filtered data) instead of allRows (full database)
-    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
+  function startInlineEdit(id) {
+    if (editingRowId && String(editingRowId) !== String(id)) {
+      cancelInlineEdit(editingRowId);
+    }
+    editingRowId = id;
+    renderRows(currentVisibleRows);
+  }
+
+  function cancelInlineEdit(id) {
+    editingRowId = null;
+    renderRows(currentVisibleRows);
+  }
+
+  async function saveInlineEdit(id) {
+    const row = allRows.find(r => String(r.id) === String(id));
+    if (!row) {
+      alert('Row not found');
+      return;
+    }
     
+    // Get values from inputs
+    const caseNumber = document.getElementById(`edit_case_${id}`).value.trim();
+    const complainant = document.getElementById(`edit_complainant_${id}`).value.trim();
+    const respondent = document.getElementById(`edit_respondent_${id}`).value.trim();
+    
+    // Validate NOT NULL fields
+    if (!caseNumber || !complainant || !respondent) {
+      alert('Case Number, Complainant, and Respondent are required fields.');
+      return;
+    }
+    
+    // Get age value - preserve original if empty, but prioritize calculated if birthdate changed
+    const ageInput = document.getElementById(`edit_age_${id}`).value.trim();
+    const birthdateInput = document.getElementById(`edit_birthdate_${id}`).value;
+    
+    // If birthdate was entered/changed, use calculated age if age field is empty or matches old age
+    let finalAge = null;
+    if (birthdateInput) {
+      const calculated = calculateAge(birthdateInput);
+      if (!ageInput) {
+        finalAge = calculated;
+      } else {
+        // If user manually typed an age, use that, but we could also warn if it differs significantly
+        finalAge = parseInt(ageInput);
+      }
+    } else {
+      // If no birthdate, use original or manual input
+      finalAge = ageInput ? parseInt(ageInput) : row.age;
+    }
+
+    // Get other values - preserve original if empty
+    const fileDate = document.getElementById(`edit_file_date_${id}`).value || row.file_date;
+    const birthdate = birthdateInput || row.birthdate;
+    const contactNumber = document.getElementById(`edit_contact_${id}`).value.trim() || row.contact_number;
+    const address = document.getElementById(`edit_address_${id}`).value.trim() || row.address;
+    const typeOfAbuse = document.getElementById(`edit_abuse_${id}`).value || row.type_of_abuse;
+    const remarks = document.getElementById(`edit_remarks_${id}`).value.trim() || row.remarks;
+    
+    // Build update object
+    const updateData = {
+      case_number: caseNumber,
+      file_date: fileDate || null,
+      complainant: complainant,
+      age: finalAge || null,
+      birthdate: birthdate || null,
+      contact_number: contactNumber || null,
+      address: address || null,
+      type_of_abuse: typeOfAbuse || null,
+      respondent: respondent,
+      remarks: remarks || null
+    };
+    
+    try {
+      const { data, error } = await sb
+        .from('vawc_cases')
+        .update(updateData)
+        .eq('id', parseInt(id))
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        alert(`Error: ${error.message}\n\nCode: ${error.code}`);
+        return;
+      }
+      
+      alert('Updated!');
+      editingRowId = null;
+      loadData();
+    } catch (e) {
+      console.error('Exception:', e);
+      alert('Error updating: ' + e.message);
+    }
+  }
+
+  function printRecords() {
+    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
     const fromDate = document.getElementById('dateFrom').value;
     const toDate = document.getElementById('dateTo').value;
     const searchTerm = document.getElementById('searchInput').value;
     
-    // Generate date range text for the print header
     let dateRangeText = '';
     if (fromDate && toDate) {
       dateRangeText = `Date Range: ${formatDate(fromDate)} to ${formatDate(toDate)}`;
@@ -460,7 +572,6 @@
     });
     
     html += '</table></div>';
-    
     const win = window.open('', '_blank');
     win.document.write(`<html><head><title>VAWC Records Print</title><style>body{font-family:Arial;}</style></head><body>${html}</body></html>`);
     win.document.close();
@@ -470,52 +581,11 @@
   async function deleteRecord(id, caseNum) {
     if (!confirm(`Delete Case #${caseNum}?`)) return;
     try {
-      await sb.from('vawc_cases').delete().eq('id', id);
+      await sb.from('vawc_cases').delete().eq('id', parseInt(id));
       alert('Deleted!');
       loadData();
     } catch (e) { alert('Error deleting'); console.error(e); }
   }
-
-  const editModal = document.getElementById('editModal');
-  document.getElementById('closeModal').addEventListener('click', () => editModal.classList.remove('active'));
-  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
-
-  function openEditModal(id) {
-    const row = allRows.find(r => r.id == id);
-    if (!row) return;
-    document.getElementById('edit_id').value = row.id;
-    document.getElementById('edit_case_number').value = row.case_number || '';
-    document.getElementById('edit_file_date').value = row.file_date || '';
-    document.getElementById('edit_complainant').value = row.complainant || '';
-    document.getElementById('edit_age').value = row.age || '';
-    document.getElementById('edit_birthdate').value = row.birthdate || '';
-    document.getElementById('edit_contact').value = row.contact_number || '';
-    document.getElementById('edit_address').value = row.address || '';
-    document.getElementById('edit_abuse_type').value = row.type_of_abuse || '';
-    document.getElementById('edit_respondent').value = row.respondent || '';
-    document.getElementById('edit_remarks').value = row.remarks || '';
-    editModal.classList.add('active');
-  }
-
-  document.getElementById('editForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const id = document.getElementById('edit_id').value;
-    await sb.from('vawc_cases').update({
-      case_number: document.getElementById('edit_case_number').value.trim(),
-      file_date: document.getElementById('edit_file_date').value || null,
-      complainant: document.getElementById('edit_complainant').value.trim(),
-      age: document.getElementById('edit_age').value,
-      birthdate: document.getElementById('edit_birthdate').value || null,
-      contact_number: document.getElementById('edit_contact').value.trim(),
-      address: document.getElementById('edit_address').value.trim(),
-      type_of_abuse: document.getElementById('edit_abuse_type').value,
-      respondent: document.getElementById('edit_respondent').value.trim(),
-      remarks: document.getElementById('edit_remarks').value.trim()
-    }).eq('id', id);
-    alert('Updated!');
-    editModal.classList.remove('active');
-    loadData();
-  });
 
   configureNav();
   loadData();
