@@ -210,10 +210,10 @@
         color: #ffffff !important; 
         -webkit-print-color-adjust: exact; 
         print-color-adjust: exact; 
-        font-weight: 700; /* Bold for clarity */
+        font-weight: 700;
         padding: 6px 4px;
         border: 1px solid #000;
-        text-transform: uppercase; /* Optional: makes headers stand out more */
+        text-transform: uppercase;
       } 
       td { 
         padding: 6px 4px; 
@@ -257,7 +257,7 @@
   <h2>VAWC Records</h2>
 
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent, Address…">
+    <input type="text" id="searchInput" placeholder="Search initials (e.g., 'PA' for Physical Abuse) or keywords...">
     <div class="date-group">
       <label for="dateFrom">From:</label>
       <input type="date" id="dateFrom">
@@ -372,11 +372,92 @@
     renderRows(allRows);
   }
 
+  // Helper to extract initials from a string (e.g., "Physical Abuse" -> "PA")
+  function getInitials(str) {
+    if (!str) return '';
+    return str
+      .trim()
+      .split(/\s+/) // Split by whitespace
+      .map(word => word.charAt(0).toUpperCase()) // Get first char of each word
+      .join('');
+  }
+
+  // STRICT MATCHING LOGIC
+  // Checks if the search term matches the FIRST LETTER of consecutive words exactly.
+  // Example: "PA" matches "Physical Abuse" (P-A). "Sical" does NOT match "Physical".
+  function matchesInitials(text, term) {
+    if (!text || !term) return false;
+    
+    const initials = getInitials(text);
+    const lowerInitials = initials.toLowerCase();
+    const lowerTerm = term.toLowerCase();
+    
+    // Check if the term is a prefix of the initials string
+    // This ensures "PA" matches "Physical Abuse" (PA...)
+    // But "Sical" does NOT match "Physical" (PA...) because "sical" != "pa..."
+    return lowerInitials.startsWith(lowerTerm);
+  }
+
+  // Helper to check if search term matches initials OR contains text (for full words)
+  function matchesSearchTerm(text, term) {
+    if (!text || !term) return false;
+    
+    const lowerText = text.toLowerCase();
+    const lowerTerm = term.toLowerCase();
+    
+    // 1. Check strict initial match (e.g., "PA" -> "Physical Abuse")
+    if (matchesInitials(text, term)) return true;
+    
+    // 2. Check if term is contained in the text (standard search for full words)
+    // This allows "Physical" to match "Physical Abuse" even if typed fully
+    if (lowerText.includes(lowerTerm)) return true;
+    
+    return false;
+  }
+
+  // Enhanced highlight function
   function highlightText(text, searchTerm) {
     if (!text || !searchTerm) return text || '';
-    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedTerm})`, 'gi');
-    return text.toString().replace(regex, '<span class="highlight">$1</span>');
+    
+    const lowerText = text.toLowerCase();
+    const lowerTerm = searchTerm.toLowerCase();
+    
+    // Check if it's an initial match
+    if (matchesInitials(text, searchTerm)) {
+      // Highlight the first letters that correspond to the search term
+      let result = '';
+      let termIndex = 0;
+      const words = text.split(/(\s+)/); // Keep spaces
+      
+      words.forEach((word) => {
+        if (/\s+/.test(word)) {
+          result += word;
+          return;
+        }
+        
+        // Check if this word's first char matches the current term char
+        if (termIndex < lowerTerm.length) {
+          const firstChar = word.charAt(0);
+          const expectedChar = lowerTerm[termIndex];
+          
+          if (firstChar.toLowerCase() === expectedChar) {
+            // Highlight this character
+            result += `<span class="highlight">${firstChar}</span>` + word.slice(1);
+            termIndex++;
+          } else {
+            result += word;
+          }
+        } else {
+          result += word;
+        }
+      });
+      return result;
+    } else {
+      // Standard highlight for substring match
+      const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+      return text.toString().replace(regex, '<span class="highlight">$1</span>');
+    }
   }
 
   function renderRows(rows) {
@@ -418,12 +499,14 @@
       
       const val = (field) => row[field] !== undefined && row[field] !== null ? row[field] : '';
       
+      // Apply highlighting
       const caseNo = highlightText(val('case_number'), searchTerm);
       const complainant = highlightText(val('complainant'), searchTerm);
       const address = highlightText(val('address'), searchTerm);
       const respondent = highlightText(val('respondent'), searchTerm);
       const remarks = highlightText(val('remarks'), searchTerm);
       const typeOfAbuse = highlightText(val('type_of_abuse'), searchTerm);
+      const contactNumber = highlightText(val('contact_number'), searchTerm);
       
       tr.innerHTML = `
         <td data-label="Case No.">${isEditing ? `<input type="text" id="edit_case_${row.id}" value="${val('case_number')}">` : caseNo}</td>
@@ -431,7 +514,7 @@
         <td data-label="Complainant">${isEditing ? `<input type="text" id="edit_complainant_${row.id}" value="${val('complainant')}">` : complainant}</td>
         <td data-label="Age">${isEditing ? `<input type="number" id="edit_age_${row.id}" value="${val('age')}">` : val('age')}</td>
         <td data-label="Birthdate">${isEditing ? `<input type="date" id="edit_birthdate_${row.id}" value="${val('birthdate')}">` : formatDate(val('birthdate'))}</td>
-        <td data-label="Contact No.">${isEditing ? `<input type="tel" id="edit_contact_${row.id}" value="${val('contact_number')}">` : val('contact_number')}</td>
+        <td data-label="Contact No.">${isEditing ? `<input type="tel" id="edit_contact_${row.id}" value="${val('contact_number')}">` : contactNumber}</td>
         <td data-label="Address">${isEditing ? `<input type="text" id="edit_address_${row.id}" value="${val('address')}">` : address}</td>
         <td data-label="Type of Abuse">${isEditing ? `
           <select id="edit_abuse_${row.id}">
@@ -465,15 +548,26 @@
   });
 
   function filterRecords() {
-    const term = document.getElementById('searchInput').value.toLowerCase();
+    const term = document.getElementById('searchInput').value.trim();
     const fromDate = document.getElementById('dateFrom').value;
     const toDate = document.getElementById('dateTo').value;
     
+    // FIX: If term is empty, show ALL rows
+    if (!term) {
+      renderRows(allRows);
+      return;
+    }
+    
     const filtered = allRows.filter(row => {
-      const matchesSearch = row.case_number?.toLowerCase().includes(term) || 
-                           row.complainant?.toLowerCase().includes(term) || 
-                           row.respondent?.toLowerCase().includes(term) ||
-                           row.address?.toLowerCase().includes(term);
+      // Check if ANY field matches the term
+      const matchesSearch = 
+        matchesSearchTerm(row.case_number, term) || 
+        matchesSearchTerm(row.complainant, term) || 
+        matchesSearchTerm(row.respondent, term) ||
+        matchesSearchTerm(row.address, term) ||
+        matchesSearchTerm(row.contact_number, term) ||
+        matchesSearchTerm(row.type_of_abuse, term);
+      
       let matchesDate = true;
       if (fromDate || toDate) {
         const recordDate = row.file_date || '';
@@ -591,7 +685,6 @@
       dateRangeText = 'All Records';
     }
     
-    // Optimized Print HTML with high contrast headers
     let html = `<!DOCTYPE html>
 <html>
 <head>
@@ -625,7 +718,7 @@
       color: #ffffff !important;
       padding: 6px 4px;
       border: 1px solid #000;
-      font-weight: 700; /* Bold */
+      font-weight: 700;
       text-align: left;
       white-space: nowrap;
       -webkit-print-color-adjust: exact;
