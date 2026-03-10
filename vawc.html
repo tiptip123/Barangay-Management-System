@@ -179,6 +179,13 @@
       min-height: 60px;
       resize: vertical;
     }
+    /* Highlight style for matched search terms */
+    .highlight {
+      background-color: #ffeb3b;
+      padding: 1px 2px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
     @media print { 
       body { background: none !important; } 
       .container { box-shadow: none; max-width: 100%; padding: 0; background: #fff; } 
@@ -187,6 +194,7 @@
       th { background: #333 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
       .editing { background-color: #fff !important; border: none !important; }
       input, select, textarea { display: none !important; }
+      .highlight { background-color: #fff !important; color: #000 !important; }
     }
     @media (max-width: 900px) { 
       table, thead, tbody, tr, td, th { display: block; width: 100%; } 
@@ -210,7 +218,7 @@
   <h2>VAWC Records</h2>
 
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent…">
+    <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent, Address…">
     <div class="date-group">
       <label for="dateFrom">From:</label>
       <input type="date" id="dateFrom">
@@ -328,9 +336,19 @@
     renderRows(allRows);
   }
 
+  // Helper function to highlight matched text
+  function highlightText(text, searchTerm) {
+    if (!text || !searchTerm) return text || '';
+    
+    const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedTerm})`, 'gi');
+    return text.toString().replace(regex, '<span class="highlight">$1</span>');
+  }
+
   function renderRows(rows) {
     tbody.innerHTML = '';
     const isAdmin = localStorage.getItem('userType') === 'vawc';
+    const searchTerm = document.getElementById('searchInput').value.trim();
     currentVisibleRows = rows;
 
     rows.forEach(row => {
@@ -364,16 +382,25 @@
         tr.className = 'editing';
       }
       
+      // Helper to get value safely - preserves null/empty values
       const val = (field) => row[field] !== undefined && row[field] !== null ? row[field] : '';
       
+      // Apply highlighting to searchable fields
+      const caseNo = highlightText(val('case_number'), searchTerm);
+      const complainant = highlightText(val('complainant'), searchTerm);
+      const address = highlightText(val('address'), searchTerm);
+      const respondent = highlightText(val('respondent'), searchTerm);
+      const remarks = highlightText(val('remarks'), searchTerm);
+      const typeOfAbuse = highlightText(val('type_of_abuse'), searchTerm);
+      
       tr.innerHTML = `
-        <td data-label="Case No.">${isEditing ? `<input type="text" id="edit_case_${row.id}" value="${val('case_number')}">` : val('case_number')}</td>
+        <td data-label="Case No.">${isEditing ? `<input type="text" id="edit_case_${row.id}" value="${val('case_number')}">` : caseNo}</td>
         <td data-label="File Date">${isEditing ? `<input type="date" id="edit_file_date_${row.id}" value="${val('file_date')}">` : formatDate(val('file_date'))}</td>
-        <td data-label="Complainant">${isEditing ? `<input type="text" id="edit_complainant_${row.id}" value="${val('complainant')}">` : val('complainant')}</td>
+        <td data-label="Complainant">${isEditing ? `<input type="text" id="edit_complainant_${row.id}" value="${val('complainant')}">` : complainant}</td>
         <td data-label="Age">${isEditing ? `<input type="number" id="edit_age_${row.id}" value="${val('age')}">` : val('age')}</td>
         <td data-label="Birthdate">${isEditing ? `<input type="date" id="edit_birthdate_${row.id}" value="${val('birthdate')}">` : formatDate(val('birthdate'))}</td>
         <td data-label="Contact No.">${isEditing ? `<input type="tel" id="edit_contact_${row.id}" value="${val('contact_number')}">` : val('contact_number')}</td>
-        <td data-label="Address">${isEditing ? `<input type="text" id="edit_address_${row.id}" value="${val('address')}">` : val('address')}</td>
+        <td data-label="Address">${isEditing ? `<input type="text" id="edit_address_${row.id}" value="${val('address')}">` : address}</td>
         <td data-label="Type of Abuse">${isEditing ? `
           <select id="edit_abuse_${row.id}">
             <option value="">Select Type of Abuse</option>
@@ -382,9 +409,9 @@
             <option value="Psychological Abuse" ${val('type_of_abuse') === 'Psychological Abuse' ? 'selected' : ''}>Psychological Abuse</option>
             <option value="Economic Abuse" ${val('type_of_abuse') === 'Economic Abuse' ? 'selected' : ''}>Economic Abuse</option>
             <option value="Verbal Abuse" ${val('type_of_abuse') === 'Verbal Abuse' ? 'selected' : ''}>Verbal Abuse</option>
-          </select>` : val('type_of_abuse')}</td>
-        <td data-label="Respondent">${isEditing ? `<input type="text" id="edit_respondent_${row.id}" value="${val('respondent')}">` : val('respondent')}</td>
-        <td data-label="Remarks">${isEditing ? `<textarea id="edit_remarks_${row.id}">${val('remarks')}</textarea>` : val('remarks')}</td>
+          </select>` : typeOfAbuse}</td>
+        <td data-label="Respondent">${isEditing ? `<input type="text" id="edit_respondent_${row.id}" value="${val('respondent')}">` : respondent}</td>
+        <td data-label="Remarks">${isEditing ? `<textarea id="edit_remarks_${row.id}">${val('remarks')}</textarea>` : remarks}</td>
         <td data-label="Actions">${actionsHtml}</td>
       `;
       tbody.appendChild(tr);
@@ -411,7 +438,11 @@
     const toDate = document.getElementById('dateTo').value;
     
     const filtered = allRows.filter(row => {
-      const matchesSearch = row.case_number?.toLowerCase().includes(term) || row.complainant?.toLowerCase().includes(term) || row.respondent?.toLowerCase().includes(term);
+      // Include address in search along with other fields
+      const matchesSearch = row.case_number?.toLowerCase().includes(term) || 
+                           row.complainant?.toLowerCase().includes(term) || 
+                           row.respondent?.toLowerCase().includes(term) ||
+                           row.address?.toLowerCase().includes(term);
       let matchesDate = true;
       if (fromDate || toDate) {
         const recordDate = row.file_date || '';
