@@ -547,39 +547,48 @@
     filterRecords();
   });
 
-  function filterRecords() {
+ function filterRecords() {
     const term = document.getElementById('searchInput').value.trim();
     const fromDate = document.getElementById('dateFrom').value;
     const toDate = document.getElementById('dateTo').value;
     
-    // FIX: If term is empty, show ALL rows
-    if (!term) {
-      renderRows(allRows);
-      return;
-    }
-    
     const filtered = allRows.filter(row => {
-      // Check if ANY field matches the term
-      const matchesSearch = 
-        matchesSearchTerm(row.case_number, term) || 
-        matchesSearchTerm(row.complainant, term) || 
-        matchesSearchTerm(row.respondent, term) ||
-        matchesSearchTerm(row.address, term) ||
-        matchesSearchTerm(row.contact_number, term) ||
-        matchesSearchTerm(row.type_of_abuse, term);
+      // Search Logic (only if term exists)
+      let matchesSearch = true;
+      if (term) {
+        matchesSearch = 
+          matchesSearchTerm(row.case_number, term) || 
+          matchesSearchTerm(row.complainant, term) || 
+          matchesSearchTerm(row.respondent, term) ||
+          matchesSearchTerm(row.address, term) ||
+          matchesSearchTerm(row.contact_number, term) ||
+          matchesSearchTerm(row.type_of_abuse, term);
+      }
       
+      // Date Filter Logic (based on file_date column)
       let matchesDate = true;
       if (fromDate || toDate) {
         const recordDate = row.file_date || '';
-        if (fromDate && toDate) matchesDate = recordDate >= fromDate && recordDate <= toDate;
-        else if (fromDate) matchesDate = recordDate >= fromDate;
-        else if (toDate) matchesDate = recordDate <= toDate;
+        
+        // Extract just the YYYY-MM-DD part for comparison
+        const recordDateOnly = recordDate ? recordDate.split('T')[0] : '';
+        
+        if (!recordDateOnly) return false; // Skip rows with no date when filtering by date
+        
+        if (fromDate && toDate) {
+          matchesDate = recordDateOnly >= fromDate && recordDateOnly <= toDate;
+        } else if (fromDate) {
+          matchesDate = recordDateOnly >= fromDate;
+        } else if (toDate) {
+          matchesDate = recordDateOnly <= toDate;
+        }
       }
+      
       return matchesSearch && matchesDate;
     });
     
     renderRows(filtered);
-  }
+}
 
   function startInlineEdit(id) {
     if (editingRowId && String(editingRowId) !== String(id)) {

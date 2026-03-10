@@ -15,7 +15,7 @@
     .container { 
       max-width: 1200px; 
       margin: auto; 
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.95); 
       padding: 2rem; 
       border-radius: 8px; 
       box-shadow: 0 2px 6px rgba(0, 0, 0, .08); 
@@ -99,7 +99,7 @@
       width: 100%; 
       border-collapse: collapse; 
       margin-top: 1rem; 
-      font-size: 0.9rem; 
+      font-size: 0.85rem; 
       background: #fff;
     }
     th, td { 
@@ -120,7 +120,7 @@
     tr:hover {
       background-color: #f1f1f1;
     }
-    .action-buttons { 
+    .action-buttons, .inline-actions { 
       display: flex; 
       gap: 0.3rem; 
     }
@@ -139,6 +139,20 @@
     .edit-btn:hover { 
       background: #2980b9; 
     }
+    .save-btn { 
+      background: #27ae60; 
+      color: #fff; 
+    }
+    .save-btn:hover { 
+      background: #219a52; 
+    }
+    .cancel-btn { 
+      background: #95a5a6; 
+      color: #fff; 
+    }
+    .cancel-btn:hover { 
+      background: #7f8c8d; 
+    }
     .delete-btn { 
       background: #e74c3c; 
       color: #fff; 
@@ -146,86 +160,80 @@
     .delete-btn:hover { 
       background: #c0392b; 
     }
-    .modal { 
-      display: none; 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(0, 0, 0, 0.5); 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 1000; 
+    .editing {
+      background-color: #fff9e6 !important;
+      border: 2px solid #f39c12;
     }
-    .modal.active { 
-      display: flex; 
+    .editing td {
+      padding: 0.5rem;
     }
-    .modal-content { 
-      background: #fff; 
-      padding: 2rem; 
-      border-radius: 8px; 
-      max-width: 600px; 
-      width: 90%; 
-      box-shadow: 0 4px 12px rgba(0, 0, 0, .2); 
-      position: relative; 
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-content h3 { 
-      margin-top: 0; 
-      color: #2c3e50; 
-      margin-bottom: 1.5rem;
-    }
-    .close-btn { 
-      position: absolute; 
-      top: .5rem; 
-      right: .5rem; 
-      background: none; 
-      border: none; 
-      font-size: 1.5rem; 
-      cursor: pointer; 
-      color: #777; 
-    }
-    .close-btn:hover { 
-      color: #000; 
-    }
-    form.edit-form { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
-      gap: 1rem; 
-    }
-    form.edit-form input, form.edit-form textarea, form.edit-form select { 
-      padding: .6rem; 
-      font-size: 1rem; 
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
+    .editing input, .editing select, .editing textarea {
       width: 100%;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.85rem;
       box-sizing: border-box;
     }
-    form.edit-form textarea { 
-      grid-column: 1 / -1; 
-      min-height: 80px;
+    .editing textarea {
+      min-height: 60px;
       resize: vertical;
     }
-    form.edit-form button { 
-      grid-column: 1 / -1; 
-      background: #2c3e50; 
-      color: #fff; 
-      border: none; 
-      cursor: pointer; 
-      padding: .8rem; 
-      font-size: 1rem; 
-      border-radius: 4px; 
-      transition: background .2s; 
+    .highlight {
+      background-color: #ffeb3b;
+      padding: 1px 2px;
+      border-radius: 2px;
       font-weight: 600;
     }
-    form.edit-form button:hover { 
-      background: #1a2838; 
-    }
     @media print { 
-      body { background: none !important; } 
-      .container { box-shadow: none; max-width: 100%; padding: 0; background: #fff; } 
-      .header, .search-bar, .action-buttons, .modal { display: none !important; } 
-      table { font-size: 0.75rem; } 
-      th { background: #333 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } 
+      body { 
+        background: none !important; 
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      } 
+      .container { 
+        box-shadow: none; 
+        max-width: 100%; 
+        padding: 0; 
+        background: #fff; 
+      } 
+      .header, .search-bar, .action-buttons, .inline-actions { 
+        display: none !important; 
+      } 
+      table { 
+        font-size: 9pt; 
+        width: 100%;
+        border-collapse: collapse;
+      } 
+      th { 
+        background: #2c3e50 !important; 
+        color: #ffffff !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+        font-weight: 700;
+        padding: 6px 4px;
+        border: 1px solid #000;
+        text-transform: uppercase;
+      } 
+      td { 
+        padding: 6px 4px; 
+        border: 1px solid #000;
+        font-size: 9pt;
+      }
+      tr {
+        page-break-inside: avoid;
+      }
+      .editing { 
+        background-color: #fff !important; 
+        border: none !important; 
+      }
+      input, select, textarea { 
+        display: none !important; 
+      }
+      .highlight { 
+        background-color: #fff !important; 
+        color: #000 !important; 
+      }
     }
     @media (max-width: 900px) { 
       table, thead, tbody, tr, td, th { display: block; width: 100%; } 
@@ -247,9 +255,9 @@
   </div>
 
   <h2>Blotter Records</h2>
-  
+
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search Case #, Complainant, Respondent…">
+    <input type="text" id="searchInput" placeholder="Search initials (e.g., 'CN' for Case No) or keywords...">
     <div class="date-group">
       <label for="dateFrom">From:</label>
       <input type="date" id="dateFrom">
@@ -278,37 +286,6 @@
   </table>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal" id="editModal">
-  <div class="modal-content">
-    <button class="close-btn" id="closeModal">&times;</button>
-    <h3>Edit Complaint</h3>
-    <form class="edit-form" id="editForm">
-      <input type="hidden" id="edit_complainant_id">
-      <input type="hidden" id="edit_blotter_id">
-      <input type="hidden" id="edit_detail_id">
-      <input type="text" id="edit_case_number" placeholder="Case Number" required>
-      <input type="datetime-local" id="edit_date_filed" placeholder="Date Filed" required>
-      <input type="text" id="edit_complainant_name" placeholder="Complainant Name" required>
-      <input type="tel" id="edit_complainant_phone" placeholder="Cellphone Number" required>
-      <input type="text" id="edit_respondent" placeholder="Respondent" required>
-      <input type="text" id="edit_nature" placeholder="Nature of Complaint" required>
-      <select id="edit_settlement">
-        <option value="">Select Form of Settlement</option>
-        <option value="Settled">Settled</option>
-        <option value="Dismissed">Dismissed</option>
-        <option value="Pending">Pending</option>
-        <option value="Mediation">Mediation</option>
-        <option value="Arbitration">Arbitration</option>
-        <option value="Court Action">Court Action</option>
-      </select>
-      <input type="datetime-local" id="edit_schedule_hearing" placeholder="Schedule of Hearing">
-      <textarea id="edit_remarks" placeholder="Remarks"></textarea>
-      <button type="submit">Save Changes</button>
-    </form>
-  </div>
-</div>
-
 <script>
   const supabaseUrl = "https://zalttugtbsqcjshqzfet.supabase.co";
   const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphbHR0dWd0YnNxY2pzaHF6ZmV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5OTY4OTUsImV4cCI6MjA4ODU3Mjg5NX0.857tB9_t04GuLPHIGBIlew-C8JBjuikgTVtxcK748Z0";
@@ -318,10 +295,69 @@
   const addLink = document.getElementById('addLink');
   const printBtn = document.getElementById('printBtn');
   let allRows = [];
-  let currentVisibleRows = []; // NEW: Track currently displayed rows
+  let currentVisibleRows = [];
+  let editingRowId = null;
+
+  // Helper to extract initials
+  function getInitials(str) {
+    if (!str) return '';
+    return str.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase()).join('');
+  }
+
+  // Strict initial matching
+  function matchesInitials(text, term) {
+    if (!text || !term) return false;
+    const initials = getInitials(text);
+    return initials.toLowerCase().startsWith(term.toLowerCase());
+  }
+
+  function matchesSearchTerm(text, term) {
+    if (!text || !term) return false;
+    const lowerText = text.toLowerCase();
+    const lowerTerm = term.toLowerCase();
+    if (matchesInitials(text, term)) return true;
+    if (lowerText.includes(lowerTerm)) return true;
+    return false;
+  }
+
+  function highlightText(text, searchTerm) {
+    if (!text || !searchTerm) return text || '';
+    const lowerText = text.toLowerCase();
+    const lowerTerm = searchTerm.toLowerCase();
+    
+    if (matchesInitials(text, searchTerm)) {
+      let result = '';
+      let termIndex = 0;
+      const words = text.split(/(\s+)/);
+      words.forEach((word) => {
+        if (/\s+/.test(word)) {
+          result += word;
+          return;
+        }
+        if (termIndex < lowerTerm.length) {
+          const firstChar = word.charAt(0);
+          const expectedChar = lowerTerm[termIndex];
+          if (firstChar.toLowerCase() === expectedChar) {
+            result += `<span class="highlight">${firstChar}</span>` + word.slice(1);
+            termIndex++;
+          } else {
+            result += word;
+          }
+        } else {
+          result += word;
+        }
+      });
+      return result;
+    } else {
+      const escapedTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedTerm})`, 'gi');
+      return text.toString().replace(regex, '<span class="highlight">$1</span>');
+    }
+  }
 
   function configureNav() {
-    const isLoggedIn = localStorage.getItem('userType') === 'blotter';
+    const userType = localStorage.getItem('userType');
+    const isLoggedIn = userType === 'blotter';
     if (isLoggedIn) {
       addLink.style.display = 'inline';
       printBtn.style.display = 'inline';
@@ -340,46 +376,12 @@
 
     if (error) { console.error('Error:', error); return; }
     allRows = data;
-    currentVisibleRows = data; // Initialize visible rows
+    currentVisibleRows = data;
     renderRows(allRows);
   }
 
   function getDateFiled(row) { return row.date_filed || (row.date ? row.date + 'T00:00:00' : null); }
   function getSchedule(row) { return row.schedule_hearing || (row.schedule ? row.schedule + 'T00:00:00' : null); }
-
-  function renderRows(rows) {
-    tbody.innerHTML = '';
-    const isAdmin = localStorage.getItem('userType') === 'blotter';
-    
-    // Update the global visible rows tracker
-    currentVisibleRows = rows;
-
-    rows.forEach(row => {
-      const detail = (row.complaint_details && row.complaint_details[0]) || {};
-      let actionsHtml = isAdmin 
-        ? `<div class="action-buttons"><button class="action-btn edit-btn" data-row-id="${row.id}">✏️ Edit</button><button class="action-btn delete-btn" data-row-id="${row.id}" data-case="${row.case_number}">🗑️</button></div>`
-        : '<span style="color: #999;">View Only</span>';
-      
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td data-label="Case No.">${row.case_number ?? ''}</td>
-        <td data-label="Date Filed">${formatDateTime(getDateFiled(row))}</td>
-        <td data-label="Complainant">${row.complainant?.complainant_name ?? ''}</td>
-        <td data-label="Respondent">${detail.respondent ?? ''}</td>
-        <td data-label="Nature of Complaint">${detail.nature_of_complaint ?? ''}</td>
-        <td data-label="Cellphone No.">${row.complainant?.complainant_phone ?? ''}</td>
-        <td data-label="Form of Settlement">${detail.form_of_settlement ?? ''}</td>
-        <td data-label="Schedule of Hearing">${formatDateTime(getSchedule(row))}</td>
-        <td data-label="Remarks">${detail.remarks ?? ''}</td>
-        <td data-label="Actions">${actionsHtml}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    
-    // Re-attach event listeners
-    document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.rowId)));
-    document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => deleteRecord(btn.dataset.rowId, btn.dataset.case)));
-  }
 
   function formatDateTime(dateStr) {
     if (!dateStr) return '';
@@ -389,6 +391,77 @@
   function formatDateForInput(dateStr) {
     if (!dateStr) return '';
     return new Date(dateStr).toISOString().slice(0, 16);
+  }
+
+  function renderRows(rows) {
+    tbody.innerHTML = '';
+    const isAdmin = localStorage.getItem('userType') === 'blotter';
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    currentVisibleRows = rows;
+
+    rows.forEach(row => {
+      const detail = (row.complaint_details && row.complaint_details[0]) || {};
+      const rowIdStr = String(row.id);
+      const isEditing = (editingRowId !== null) && (rowIdStr === String(editingRowId));
+
+      let actionsHtml = '';
+      if (isAdmin) {
+        if (isEditing) {
+          actionsHtml = `
+            <div class="inline-actions">
+              <button class="action-btn save-btn" data-id="${row.id}">✓ Save</button>
+              <button class="action-btn cancel-btn" data-id="${row.id}">✕ Cancel</button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div class="action-buttons">
+              <button class="action-btn edit-btn" data-id="${row.id}">✏️ Edit</button>
+              <button class="action-btn delete-btn" data-id="${row.id}" data-case="${row.case_number}">🗑️</button>
+            </div>
+          `;
+        }
+      } else {
+        actionsHtml = '<span style="color: #999;">View Only</span>';
+      }
+      
+      const tr = document.createElement('tr');
+      if (isEditing) {
+        tr.className = 'editing';
+      }
+      
+      // Highlighting
+      const caseNo = highlightText(row.case_number, searchTerm);
+      const complainantName = highlightText(row.complainant?.complainant_name, searchTerm);
+      const respondent = highlightText(detail.respondent, searchTerm);
+      const nature = highlightText(detail.nature_of_complaint, searchTerm);
+      const settlement = highlightText(detail.form_of_settlement, searchTerm);
+      const remarks = highlightText(detail.remarks, searchTerm);
+      const phone = highlightText(row.complainant?.complainant_phone, searchTerm);
+
+      tr.innerHTML = `
+        <td data-label="Case No.">${isEditing ? `<input type="text" id="edit_case_number" value="${row.case_number || ''}">` : caseNo}</td>
+        <td data-label="Date Filed">${isEditing ? `<input type="datetime-local" id="edit_date_filed" value="${formatDateForInput(getDateFiled(row))}">` : formatDateTime(getDateFiled(row))}</td>
+        <td data-label="Complainant">${isEditing ? `<input type="text" id="edit_complainant_name" value="${row.complainant?.complainant_name || ''}">` : complainantName}</td>
+        <td data-label="Respondent">${isEditing ? `<input type="text" id="edit_respondent" value="${detail.respondent || ''}">` : respondent}</td>
+        <td data-label="Nature of Complaint">${isEditing ? `<input type="text" id="edit_nature" value="${detail.nature_of_complaint || ''}">` : nature}</td>
+        <td data-label="Cellphone No.">${isEditing ? `<input type="tel" id="edit_complainant_phone" value="${row.complainant?.complainant_phone || ''}">` : phone}</td>
+        <td data-label="Form of Settlement">${isEditing ? `
+          <select id="edit_settlement">
+            <option value="">Select Settlement</option>
+            <option value="Settled" ${detail.form_of_settlement === 'Settled' ? 'selected' : ''}>Settled</option>
+            <option value="Dismissed" ${detail.form_of_settlement === 'Dismissed' ? 'selected' : ''}>Dismissed</option>
+            <option value="Pending" ${detail.form_of_settlement === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option value="Mediation" ${detail.form_of_settlement === 'Mediation' ? 'selected' : ''}>Mediation</option>
+            <option value="Arbitration" ${detail.form_of_settlement === 'Arbitration' ? 'selected' : ''}>Arbitration</option>
+            <option value="Court Action" ${detail.form_of_settlement === 'Court Action' ? 'selected' : ''}>Court Action</option>
+          </select>` : settlement}</td>
+        <td data-label="Schedule of Hearing">${isEditing ? `<input type="datetime-local" id="edit_schedule_hearing" value="${formatDateForInput(getSchedule(row))}">` : formatDateTime(getSchedule(row))}</td>
+        <td data-label="Remarks">${isEditing ? `<textarea id="edit_remarks">${detail.remarks || ''}</textarea>` : remarks}</td>
+        <td data-label="Actions">${actionsHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
   document.getElementById('searchInput').addEventListener('input', filterRecords);
@@ -401,40 +474,157 @@
   });
 
   function filterRecords() {
-    const term = document.getElementById('searchInput').value.toLowerCase();
-    const fromDate = document.getElementById('dateFrom').value;
-    const toDate = document.getElementById('dateTo').value;
+  const term = document.getElementById('searchInput').value.trim();
+  const fromDate = document.getElementById('dateFrom').value;
+  const toDate = document.getElementById('dateTo').value;
+  
+  // If no search term, just apply date filters or show all
+  if (!term) {
     const filtered = allRows.filter(row => {
-      const detail = (row.complaint_details && row.complaint_details[0]) || {};
-      const matchesSearch = row.case_number?.toLowerCase().includes(term) || row.complainant?.complainant_name?.toLowerCase().includes(term) || detail.respondent?.toLowerCase().includes(term) || detail.nature_of_complaint?.toLowerCase().includes(term);
       let matchesDate = true;
       if (fromDate || toDate) {
-        const recordDate = getDateFiled(row)?.split('T')[0] || '';
-        if (fromDate && toDate) matchesDate = recordDate >= fromDate && recordDate <= toDate;
-        else if (fromDate) matchesDate = recordDate >= fromDate;
-        else if (toDate) matchesDate = recordDate <= toDate;
+        const recordDate = getDateFiled(row);
+        if (!recordDate) return false; // Skip if no date
+        
+        // Extract just the YYYY-MM-DD part for comparison
+        const recordDateOnly = recordDate.split('T')[0];
+        
+        if (fromDate && toDate) {
+          matchesDate = recordDateOnly >= fromDate && recordDateOnly <= toDate;
+        } else if (fromDate) {
+          matchesDate = recordDateOnly >= fromDate;
+        } else if (toDate) {
+          matchesDate = recordDateOnly <= toDate;
+        }
       }
-      return matchesSearch && matchesDate;
+      return matchesDate;
     });
     renderRows(filtered);
+    return;
   }
 
-  function printRecords() {
-    // Use currentVisibleRows (filtered data) instead of allRows (full database)
-    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
+  const filtered = allRows.filter(row => {
+    const detail = (row.complaint_details && row.complaint_details[0]) || {};
+    const matchesSearch = 
+      matchesSearchTerm(row.case_number, term) || 
+      matchesSearchTerm(row.complainant?.complainant_name, term) || 
+      matchesSearchTerm(detail.respondent, term) ||
+      matchesSearchTerm(detail.nature_of_complaint, term) ||
+      matchesSearchTerm(detail.form_of_settlement, term);
     
-    let html = `<div style="padding: 15px;"><h2 style="text-align: center;">Blotter Records</h2><p>Total: ${rowsToPrint.length}</p><table style="width: 100%; border-collapse: collapse; font-size: 10px;"><tr style="background: #333; color: #fff;"><th>Case</th><th>Date</th><th>Complainant</th><th>Respondent</th><th>Nature</th><th>Phone</th><th>Settlement</th><th>Schedule</th><th>Remarks</th></tr>`;
+    let matchesDate = true;
+    if (fromDate || toDate) {
+      const recordDate = getDateFiled(row);
+      if (!recordDate) return false; // Skip if no date
+      
+      // Extract just the YYYY-MM-DD part for comparison
+      const recordDateOnly = recordDate.split('T')[0];
+      
+      if (fromDate && toDate) {
+        matchesDate = recordDateOnly >= fromDate && recordDateOnly <= toDate;
+      } else if (fromDate) {
+        matchesDate = recordDateOnly >= fromDate;
+      } else if (toDate) {
+        matchesDate = recordDateOnly <= toDate;
+      }
+    }
+    return matchesSearch && matchesDate;
+  });
+  
+  renderRows(filtered);
+}
+
+  // Event delegation
+  tbody.addEventListener('click', function(e) {
+    const target = e.target;
+    if (target.classList.contains('edit-btn')) {
+      const id = target.dataset.id;
+      startInlineEdit(id);
+      return;
+    }
+    if (target.classList.contains('save-btn')) {
+      const id = target.dataset.id;
+      saveInlineEdit(id);
+      return;
+    }
+    if (target.classList.contains('cancel-btn')) {
+      const id = target.dataset.id;
+      cancelInlineEdit(id);
+      return;
+    }
+    if (target.classList.contains('delete-btn')) {
+      const id = target.dataset.id;
+      const caseNum = target.dataset.case;
+      deleteRecord(id, caseNum);
+      return;
+    }
+  });
+
+  function startInlineEdit(id) {
+    if (editingRowId && String(editingRowId) !== String(id)) {
+      cancelInlineEdit(editingRowId);
+    }
+    editingRowId = id;
+    renderRows(currentVisibleRows);
+  }
+
+  function cancelInlineEdit(id) {
+    editingRowId = null;
+    renderRows(currentVisibleRows);
+  }
+
+  async function saveInlineEdit(id) {
+    const row = allRows.find(r => String(r.id) === String(id));
+    if (!row) {
+      alert('Row not found');
+      return;
+    }
+    const detail = (row.complaint_details && row.complaint_details[0]) || {};
     
-    rowsToPrint.forEach(row => {
-      const d = (row.complaint_details && row.complaint_details[0]) || {};
-      html += `<tr><td>${row.case_number || ''}</td><td>${formatDateTime(getDateFiled(row))}</td><td>${row.complainant?.complainant_name || ''}</td><td>${d.respondent || ''}</td><td>${d.nature_of_complaint || ''}</td><td>${row.complainant?.complainant_phone || ''}</td><td>${d.form_of_settlement || ''}</td><td>${formatDateTime(getSchedule(row))}</td><td>${d.remarks || ''}</td></tr>`;
-    });
-    
-    html += '</table></div>';
-    const win = window.open('', '_blank');
-    win.document.write(`<html><head><title>Print</title><style>body{font-family:Arial;}</style></head><body>${html}</body></html>`);
-    win.document.close();
-    win.onload = () => win.print();
+    const caseNumber = document.getElementById('edit_case_number').value.trim();
+    const complainantName = document.getElementById('edit_complainant_name').value.trim();
+    const complainantPhone = document.getElementById('edit_complainant_phone').value.trim();
+    const respondent = document.getElementById('edit_respondent').value.trim();
+    const nature = document.getElementById('edit_nature').value.trim();
+    const settlement = document.getElementById('edit_settlement').value;
+    const remarks = document.getElementById('edit_remarks').value.trim();
+    const dateFiled = document.getElementById('edit_date_filed').value || null;
+    const schedule = document.getElementById('edit_schedule_hearing').value || null;
+
+    if (!caseNumber || !complainantName || !respondent) {
+      alert('Case Number, Complainant, and Respondent are required.');
+      return;
+    }
+
+    try {
+      // 1. Update Complainant
+      await sb.from('complainant').update({ 
+        complainant_name: complainantName, 
+        complainant_phone: complainantPhone 
+      }).eq('id', row.complainant.id);
+
+      // 2. Update Blotter
+      await sb.from('blotter').update({ 
+        case_number: caseNumber, 
+        date_filed: dateFiled, 
+        schedule_hearing: schedule 
+      }).eq('id', id);
+
+      // 3. Update Details
+      await sb.from('complaint_details').update({ 
+        respondent: respondent, 
+        nature_of_complaint: nature, 
+        form_of_settlement: settlement, 
+        remarks: remarks 
+      }).eq('id', detail.id);
+
+      alert('Updated!');
+      editingRowId = null;
+      loadData();
+    } catch (e) {
+      console.error(e);
+      alert('Error updating: ' + e.message);
+    }
   }
 
   async function deleteRecord(id, caseNum) {
@@ -450,60 +640,84 @@
     } catch (e) { alert('Error deleting'); console.error(e); }
   }
 
-  const editModal = document.getElementById('editModal');
-  document.getElementById('closeModal').addEventListener('click', () => editModal.classList.remove('active'));
-  editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('active'); });
+  function printRecords() {
+    const rowsToPrint = currentVisibleRows.length > 0 ? currentVisibleRows : allRows;
+    const fromDate = document.getElementById('dateFrom').value;
+    const toDate = document.getElementById('dateTo').value;
+    const searchTerm = document.getElementById('searchInput').value;
+    
+    let dateRangeText = '';
+    if (fromDate && toDate) {
+      dateRangeText = `Date Range: ${new Date(fromDate).toLocaleDateString()} to ${new Date(toDate).toLocaleDateString()}`;
+    } else if (fromDate) {
+      dateRangeText = `From: ${new Date(fromDate).toLocaleDateString()}`;
+    } else if (toDate) {
+      dateRangeText = `To: ${new Date(toDate).toLocaleDateString()}`;
+    } else {
+      dateRangeText = 'All Records';
+    }
 
-  function openEditModal(rowId) {
-    const row = allRows.find(r => r.id == rowId);
-    if (!row) return;
-    const d = (row.complaint_details && row.complaint_details[0]) || {};
-    document.getElementById('edit_complainant_id').value = row.complainant?.id || '';
-    document.getElementById('edit_blotter_id').value = row.id;
-    document.getElementById('edit_detail_id').value = d.id || '';
-    document.getElementById('edit_case_number').value = row.case_number || '';
-    document.getElementById('edit_date_filed').value = formatDateForInput(getDateFiled(row));
-    document.getElementById('edit_complainant_name').value = row.complainant?.complainant_name || '';
-    document.getElementById('edit_complainant_phone').value = row.complainant?.complainant_phone || '';
-    document.getElementById('edit_respondent').value = d.respondent || '';
-    document.getElementById('edit_nature').value = d.nature_of_complaint || '';
-    document.getElementById('edit_settlement').value = d.form_of_settlement || '';
-    document.getElementById('edit_schedule_hearing').value = formatDateForInput(getSchedule(row));
-    document.getElementById('edit_remarks').value = d.remarks || '';
-    editModal.classList.add('active');
+    let html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Blotter Records Print</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15px; -webkit-font-smoothing: antialiased; }
+    h2 { text-align: center; margin-bottom: 10px; color: #2c3e50; }
+    .info { text-align: center; margin: 5px 0; font-size: 10pt; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9pt; }
+    th { background: #2c3e50 !important; color: #ffffff !important; padding: 6px 4px; border: 1px solid #000; font-weight: 700; text-transform: uppercase; -webkit-print-color-adjust: exact; }
+    td { padding: 6px 4px; border: 1px solid #000; font-size: 9pt; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+  <h2>Blotter Records</h2>
+  <div class="info"><strong>${dateRangeText}</strong></div>
+  <div class="info">Total: ${rowsToPrint.length} record(s)</div>
+  ${searchTerm ? `<div class="info" style="font-size: 8pt;">Search: "${searchTerm}"</div>` : ''}
+  <table>
+    <thead>
+      <tr>
+        <th>Case No.</th>
+        <th>Date Filed</th>
+        <th>Complainant</th>
+        <th>Respondent</th>
+        <th>Nature</th>
+        <th>Phone</th>
+        <th>Settlement</th>
+        <th>Schedule</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>`;
+    
+    rowsToPrint.forEach(row => {
+      const d = (row.complaint_details && row.complaint_details[0]) || {};
+      html += `<tr>
+        <td>${row.case_number || ''}</td>
+        <td>${formatDateTime(getDateFiled(row))}</td>
+        <td>${row.complainant?.complainant_name || ''}</td>
+        <td>${d.respondent || ''}</td>
+        <td>${d.nature_of_complaint || ''}</td>
+        <td>${row.complainant?.complainant_phone || ''}</td>
+        <td>${d.form_of_settlement || ''}</td>
+        <td>${formatDateTime(getSchedule(row))}</td>
+        <td>${d.remarks || ''}</td>
+      </tr>`;
+    });
+    
+    html += `</tbody>
+  </table>
+</body>
+</html>`;
+    
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.onload = () => win.print();
   }
-
-  document.getElementById('editForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const compId = document.getElementById('edit_complainant_id').value;
-    const blotId = document.getElementById('edit_blotter_id').value;
-    const detailId = document.getElementById('edit_detail_id').value;
-    
-    // Update Complainant
-    await sb.from('complainant').update({ 
-      complainant_name: document.getElementById('edit_complainant_name').value.trim(), 
-      complainant_phone: document.getElementById('edit_complainant_phone').value.trim() 
-    }).eq('id', compId);
-    
-    // Update Blotter
-    await sb.from('blotter').update({ 
-      case_number: document.getElementById('edit_case_number').value.trim(), 
-      date_filed: document.getElementById('edit_date_filed').value || null, 
-      schedule_hearing: document.getElementById('edit_schedule_hearing').value || null 
-    }).eq('id', blotId);
-    
-    // Update Details
-    await sb.from('complaint_details').update({ 
-      respondent: document.getElementById('edit_respondent').value.trim(), 
-      nature_of_complaint: document.getElementById('edit_nature').value.trim(), 
-      form_of_settlement: document.getElementById('edit_settlement').value || null, 
-      remarks: document.getElementById('edit_remarks').value.trim() || null 
-    }).eq('id', detailId);
-    
-    alert('Updated!');
-    editModal.classList.remove('active');
-    loadData();
-  });
 
   configureNav();
   loadData();
